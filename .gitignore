@@ -1,0 +1,6 @@
+# Session material: specs and plans are never committed (see .claude/rules/pull-requests.md)
+.scratch/
+__pycache__/
+*.pyc
+.DS_Store
+.obsidian/workspace*.json
