@@ -1,6 +1,5 @@
 ---
 type: system
-status: active
 ---
 
 # Vision: from knowledge store to personal AI operating system
@@ -67,7 +66,7 @@ The layer that asks instead of waiting to be asked:
   Do not store everything unfiltered.
 - **Keep history.** Without comparability over time, pattern recognition
   and learning are worthless
-  ([temporal information](../.claude/rules/temporal-information.md)).
+  ([current state vs. history](../AGENTS.md#current-state-vs-history)).
 - **Separate fact and interpretation.** A detected pattern is a hypothesis,
   not a truth ([knowledge integrity](../.claude/rules/knowledge-integrity.md)).
 - **Personal baseline, not norms.** Compare the owner with their own normal

@@ -14,7 +14,8 @@ deliberately. Everything else in the system serves them.
    Everything else links to it.
 5. **Preserve history.** Information must not disappear because the
    structure changed, or because it stopped being current. Archive before
-   delete.
+   delete. Processed inbox captures are the one exception: once filed,
+   they are deleted, and Git history keeps the raw version.
 6. **Explicit decisions beat inferred assumptions.** What the owner stated
    outranks what an AI inferred. Assumptions are labeled as such.
 7. **The latest explicit statement defines current state.** Previous state
