@@ -2,8 +2,8 @@
 
 Starting points for new files, **not straitjackets**. Omit sections that do
 not apply; add sections a specific file needs. If a template keeps causing
-friction or unused sections, improve it and note it in
-[observations](../learning/observations.md).
+friction or unused sections, improve it and note it in the current month's
+file in [`observations/`](../learning/observations/).
 
 - [capture.md](./capture.md): inbox capture (barely a template, on purpose)
 - [project.md](./project.md): adaptive project file (small project = one file)
@@ -17,5 +17,6 @@ friction or unused sections, improve it and note it in
 - [weekly.md](./weekly.md): weekly review (condense)
 - [monthly.md](./monthly.md): monthly review (larger patterns)
 - [yearly.md](./yearly.md): yearly review (long-term development)
+- [README.owner.md](./README.owner.md): the README of your own copy; `init.py` puts it in place of the blueprint README
 
 Frontmatter fields follow the schema in [taxonomy](../taxonomy.md).

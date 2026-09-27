@@ -9,8 +9,13 @@ Templates: `00-system/templates/{daily,weekly,monthly,yearly}.md`.
 Files: `02-journal/daily/YYYY-MM-DD.md`, `02-journal/weekly/YYYY-Www.md`,
 `02-journal/monthly/YYYY-MM.md`, `02-journal/yearly/YYYY.md`.
 
-Journal files are immutable history: an existing file means that period is
-done. Corrections happen in canonical files, not by rewriting the past.
+Journal files are history. An existing weekly, monthly or yearly means that
+period is done. An existing daily is never rewritten; a fact that turns up
+later is appended at its end under `## Added later`. Corrections happen in
+canonical files, not by rewriting the past.
+
+When you are done, commit (and in multi-session mode: follow the
+pull-request rule in [AGENTS.md](../../AGENTS.md)).
 
 ## Daily
 
@@ -18,20 +23,22 @@ Capture and events. Cheap, unpolished, optional. No synthesis required.
 
 ## Weekly
 
-1. Triage the inbox ([triage.md](./triage.md)).
+1. Triage the inbox ([triage.md](./triage.md)). **Skipped when the weekly
+   runs unattended**: the nightly triage owns the inbox then, and two runs
+   filing the same capture would collide.
 2. Read this week's dailies; write the weekly from them (condense, do not
    copy).
 3. Walk the active projects: progress, blockers, stagnation → update the
    project files and [the projects index](../indexes/projects.md).
 4. Update [`current-context.md`](../current-context.md) (focus, loops,
    recent decisions).
-5. Work off the **due evaluations** in
-   [`organization-log.md`](../learning/organization-log.md): every entry
+5. Work off the **due evaluations** in the month files of
+   [`organization-log/`](../learning/organization-log/): every entry
    whose `Result:` is still open and whose review date has arrived gets its
    verdict (keep / modify / revert), or a concrete new date when there is
    genuinely no evidence yet. `linkcheck.py` reports overdue entries.
-6. One-minute system check: anything for
-   [`observations.md`](../learning/observations.md)?
+6. One-minute system check: anything for the current month's file in
+   [`observations/`](../learning/observations/)?
 
 ## Monthly
 
@@ -47,10 +54,14 @@ Capture and events. Cheap, unpolished, optional. No synthesis required.
    1 to 2 items from
    [`optimization-backlog.md`](../learning/optimization-backlog.md) whose
    condition is met.
-5. **Thin out the month's observations.** Everything promoted, resolved, or
-   clearly stale leaves the log, each with one line saying where it went.
+5. **Thin out the month's observations** (the month's file in
+   [`observations/`](../learning/observations/)). Everything promoted,
+   resolved, or clearly stale leaves the file, each with one line saying
+   where it went.
    Close the due evaluations, as in the weekly.
-6. **Quarterly (March, June, September, December): look outside.** Run
+6. **Quarterly: look outside.** In the monthly reviews written in January,
+   April, July and October (covering December, March, June and September),
+   run
    [the "Look outside" section](./optimize.md#look-outside-once-a-quarter)
    of `optimize.md`. Its output is at most three backlog entries, never a
    change.
@@ -64,18 +75,16 @@ every manual review.
 1. Read the monthlies; write the yearly: long-term development, major
    decisions and their outcomes, goal retrospective, themes for next year.
 2. System retrospective: did organization changes pay off
-   ([`organization-log.md`](../learning/organization-log.md))? What should
+   (the year's files in
+   [`organization-log/`](../learning/organization-log/))? What should
    evolve next year?
 
 ## Automation
 
 The daily, weekly and monthly reviews can run by themselves every morning
 as **one** scheduled routine. Setup, the catch-up windows, the heartbeat and
-an example prompt are in [automation.md](./automation.md).
-
-Why one routine and not three: the weekly reads the dailies and the monthly
-reads the weeklies, so they must run in order and in one session. Parallel
-routines would race on the same repository.
+an example prompt are in [automation.md](./automation.md). The daily
+catch-up covers the **7 days before today**, never today itself.
 
 ### Journal days are local days
 
@@ -96,5 +105,5 @@ to the next journal day.
 What never reached the repository cannot be recovered from Git. An
 automated daily note keeps the journal from being empty; it does not
 replace capturing during the day. It says at the top that it was written
-after the fact, and a day with no evidence gets a short entry saying so.
-Never invent.
+after the fact. **A day with no evidence gets no file**: an empty "nothing
+happened" note would claim a record that does not exist. Never invent.

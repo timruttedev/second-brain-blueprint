@@ -3,11 +3,12 @@
 The current shape of the system and the reasons behind it.
 
 > This file always describes the **current** state. When the structure
-> evolves, update this file in the same change and log the move in
-> [organization-log.md](./learning/organization-log.md).
+> evolves, update this file in the same change and log the move in the
+> current month's file of the
+> [organization log](./learning/organization-log.md).
 
-Version: 1
-Status: active
+Version: 1 (the structure version AGENTS.md refers to; raise it when the
+top-level layout changes).
 
 Where the system is meant to go (target state, not current):
 [vision.md](./vision.md).
@@ -90,12 +91,24 @@ No speculative design for these. They get answered when usage demands it:
   Automate only if it proves robust and cheap. The system must never
   depend critically on a model-specific feature.
 
+## Operating modes
+
+The repository runs in **single-session mode** by default: one session at
+a time, commits straight to `main`. **Multi-session mode** is opt-in and
+gives every session its own worktree and branch, with a pull request per
+task. The switch is one line in AGENTS.md
+([operating mode](../AGENTS.md#operating-mode)). Why a default without
+worktrees: most owners run one session at a time, and a branch plus pull
+request for every logged workout is heavier than the work itself.
+
 ## Automation
 
 Scheduled cloud runs can keep the system alive without a session: a
 morning journal run (daily note, reviews when due) and a nightly inbox
-triage. Each run writes a heartbeat, because a run's status says nothing
-about its effect: only the heartbeat commit proves the work happened.
+triage. They commit directly to `main` in both operating modes, because
+each run has its own isolated checkout. Each run writes a heartbeat,
+because a run's status says nothing about its effect: only the heartbeat
+commit proves the work happened.
 Details: [automation workflow](./workflows/automation.md).
 
 Ingest pipelines (mail, documents, voice notes) are optional. They drop
@@ -110,7 +123,11 @@ atomic captures into `01-inbox/` and triage takes it from there.
   checker still finds problems. A checker that silently reports green is
   worse than none.
 - [branch_overview.py](./scripts/branch_overview.py) shows work on branches
-  that `main` does not have yet, so a session does not redo it.
+  that `main` does not have yet, so a session does not redo it
+  (multi-session mode).
+- The [pre-commit checks](../AGENTS.md#pre-commit-checks) run before every
+  commit. CI (`.github/workflows/checks.yml`) runs the link checker and the
+  script tests on every push and pull request.
 
 ## Key flows
 

@@ -8,8 +8,8 @@
 >
 > | | where it goes | typical size |
 > |---|---|---|
-> | **Task:** the owner must do something in the world, and not doing it has a consequence (deadline, money, legal, blocks a project) | **here**, one line, details behind the link | about 20 |
-> | **Open question or gap:** the *repository* does not know something (a missing value, an illegible scan, two sources that disagree) | the `Open loops` section of the **canonical file**, never here | often hundreds |
+> | **Task:** the owner must do something in the world, and not doing it has a consequence (deadline, money, legal, blocks a project) | **here**, one line, details behind the link | short enough to read in one go |
+> | **Open question or gap:** the *repository* does not know something (a missing value, an illegible scan, two sources that disagree) | the `Open loops` section of the **canonical file**, never here | usually many more than tasks |
 >
 > Why: open questions are bound to their context. Collected here they would
 > be neither maintainable nor readable. Whoever looks for them looks in the
@@ -23,7 +23,7 @@
 |---|---|---|---|
 
 <!-- Example row (delete when you add your first real task):
-| **Renew passport** | YYYY-MM-DD | book an appointment at the citizens' office | `04-areas/admin.md` |
+| **Renew passport** | YYYY-MM-DD | fill in the renewal form | `04-areas/admin.md` |
 -->
 
 ## Blocks something else

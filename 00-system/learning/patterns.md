@@ -2,31 +2,38 @@
 
 Confirmed, durable patterns that agents honor in daily work.
 
-A new pattern is promoted from [observations.md](./observations.md) only
-with enough evidence: about 3 independent occurrences, or one explicit
-confirmation by the owner. Patterns cover things like work preferences,
+A new pattern is promoted from the observations (the month files behind
+[observations.md](./observations.md)) only with enough evidence: about 3
+independent occurrences, or one explicit confirmation by the owner. Patterns cover things like work preferences,
 preferred presentation, recurring relations between topics, recurring
 project structures and recurring workflows.
 
-## Format for new patterns
+## Format
+
+Every pattern, seed or your own, uses the same shape:
 
 ```
 ## <short name>
-- Pattern: what holds
-- Evidence: dated occurrences or owner statement
-- Consequence: what agents do differently
-- Since: YYYY-MM-DD   (Revised: YYYY-MM-DD if changed)
+
+- **Pattern:** what holds
+- **Why:** what goes wrong without it
+- **How to apply:** what agents do differently (a sub-list is fine)
+- **Evidence:** dated occurrences or the owner statement (optional for
+  seed patterns, required for your own)
 ```
 
-If a pattern stops holding, mark it superseded with a date and a reason. Do
-not delete it silently.
+When a pattern changes, add a dated line under it
+(`Revised YYYY-MM-DD: old -> new, because ...`). If it stops holding, mark
+it `Superseded YYYY-MM-DD` with the reason. Do not delete it silently.
 
 ## Seed patterns
 
 The patterns below ship with the blueprint. They are generic lessons from
-running a system like this one, written as Pattern, Why and How to apply.
-Keep them, adapt them, or mark them superseded when your own evidence says
-otherwise. Your own patterns go below them in the format above.
+running a system like this one. Keep them, adapt them, or mark them
+superseded when your own evidence says otherwise. Your own patterns go
+below the seed patterns and above the "Advanced" section, in the format
+above. The "Advanced" section at the end holds seed patterns that only
+matter in some setups (scanned documents, cloud checkouts).
 
 ---
 
@@ -42,8 +49,9 @@ otherwise. Your own patterns go below them in the format above.
   - Before writing down a convention about form, metadata or filing, ask:
     can the same sentence be a check? If yes, build the check and keep the
     text as its reason.
-  - Put the check where the work happens (the pre-commit checklist), not
-    only where the rule is explained. A consequence that lives only in the
+  - Put the check where the work happens (the
+    [pre-commit checks](../../AGENTS.md#pre-commit-checks)), not only
+    where the rule is explained. A consequence that lives only in the
     explanation does not get run.
   - Limit: content rules (what counts as fact, what the owner decides)
     cannot be checked mechanically and stay text.
@@ -71,17 +79,20 @@ otherwise. Your own patterns go below them in the format above.
 ## Search before create, including other branches
 
 - **Pattern:** Before creating a canonical file, search for an existing
-  home. The search must include unmerged branches, not just the working
-  tree and `main`.
+  home. When more than one branch exists (multi-session mode, scheduled
+  runs), the search includes unmerged branches, not just the working tree
+  and `main`.
 - **Why:** A duplicate splits one fact into two places that drift apart.
   Work that is finished but unmerged is invisible to a session that only
   reads `main`, so it gets built a second time, often differently.
 - **How to apply:**
-  - `git fetch` and `git merge origin/main` before creating a canonical
-    file. `git merge main` alone compares against a possibly stale local
+  - Bring your checkout up to date before creating a canonical file:
+    `git pull` on `main`, or `git fetch` and `git merge origin/main` on a
+    branch. `git merge main` alone compares against a possibly stale local
     branch and reports "Already up to date".
-  - Run `python3 00-system/scripts/branch_overview.py --fetch` before
-    triage and before creating canonical files. If it reports a file on
+  - When branches exist, run
+    `python3 00-system/scripts/branch_overview.py --fetch` before triage
+    and before creating canonical files. If it reports a file on
     another branch, read it there (`git show <branch>:<path>`) before
     writing.
   - Update the existing file and link to it instead of copying.
@@ -100,19 +111,6 @@ otherwise. Your own patterns go below them in the format above.
     reasoning about what is likely.
   - Keep old values as history: the chain of documents, not any single
     one, is what surfaces an error.
-
-## Never trust an OCR text layer for values that matter
-
-- **Pattern:** Scanners embed their own OCR. A PDF that returns text is no
-  evidence that the text is right.
-- **Why:** OCR is confidently wrong in small ways (a digit, a letter in an
-  IBAN or BIC, a word) and drops handwriting (dates, signatures, filled-in
-  fields) entirely.
-- **How to apply:**
-  - Read every name, number, amount, date and signature field off the
-    **image** before recording it.
-  - A value stated twice in the document checks itself. If the two copies
-    disagree, the OCR is wrong, not the issuer.
 
 ## Update in place, keep the history
 
@@ -164,22 +162,6 @@ otherwise. Your own patterns go below them in the format above.
   - Stagger the times. Every run writes to `main`; give each one its own
     slot so two runs never write the same file at once.
 
-## Shallow clones report "unrelated histories"
-
-- **Pattern:** Cloud checkouts are often shallow clones. Across the shallow
-  boundary Git finds no common ancestor and reports `refusing to merge
-  unrelated histories`, although one exists.
-- **Why:** It looks like rewritten history and tempts a destructive fix
-  (`reset --hard`, force push). Usually nothing is wrong except the missing
-  depth.
-- **How to apply:**
-  - Check with `git rev-parse --is-shallow-repository` before concluding
-    anything.
-  - If allowed, `git fetch --unshallow origin main`, then retry.
-  - Otherwise work from a fresh state without destroying the old one:
-    `git switch --detach origin/main`, commit, `git push origin HEAD:main`.
-    Never rewrite pushed history to "fix" it.
-
 ## Specs and plans are session material, not committed
 
 - **Pattern:** Design documents, implementation plans and task lists stay
@@ -193,9 +175,10 @@ otherwise. Your own patterns go below them in the format above.
   - What turned out to be durable during the work goes into the durable
     home: a decision record, a workflow, a knowledge file, a README.
 
-## A task ends with a pull request
+## In multi-session mode, a task ends with a pull request
 
-- **Pattern:** A new task is not done with a push. As soon as the first
+- **Pattern:** Applies only when the operating mode in `AGENTS.md` is
+  multi-session. A new task is not done with a push. As soon as the first
   draft stands (built, checked, presentable), open a pull request without
   being asked.
 - **Why:** The pull request is where the owner reviews work: diff, checks
@@ -222,3 +205,40 @@ otherwise. Your own patterns go below them in the format above.
   - Keep scans in an external document store and reference them.
   - Never store passwords, keys, tokens or PINs; store where they live
     instead.
+
+---
+
+# Advanced
+
+Seed patterns for specific setups. Skip them if they do not apply to you.
+
+## Never trust an OCR text layer for values that matter
+
+- **Pattern:** Scanners embed their own OCR. A PDF that returns text is no
+  evidence that the text is right.
+- **Why:** OCR is confidently wrong in small ways (a digit, a letter in an
+  IBAN or BIC, a word) and drops handwriting (dates, signatures, filled-in
+  fields) entirely.
+- **How to apply:**
+  - Read every name, number, amount, date and signature field off the
+    **image** before recording it.
+  - A value stated twice in the document checks itself. If the two copies
+    disagree, the OCR is wrong, not the issuer.
+
+## Shallow clones report "unrelated histories"
+
+- **Pattern:** Cloud checkouts are often shallow clones. Across the shallow
+  boundary Git finds no common ancestor and reports `refusing to merge
+  unrelated histories`, although one exists.
+- **Why:** It looks like rewritten history and tempts a destructive fix
+  (`reset --hard`, force push). Usually nothing is wrong except the missing
+  depth.
+- **How to apply:**
+  - Check with `git rev-parse --is-shallow-repository` before concluding
+    anything.
+  - If allowed, `git fetch --unshallow origin main`, then retry.
+  - `branch_overview.py` lists branches it could not compare for this
+    reason as skipped, never as "all clear"; `--fetch` tries to deepen.
+  - Otherwise work from a fresh state without destroying the old one:
+    `git switch --detach origin/main`, commit, `git push origin HEAD:main`.
+    Never rewrite pushed history to "fix" it.

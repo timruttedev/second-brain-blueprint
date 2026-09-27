@@ -5,7 +5,8 @@ schema.
 
 **This taxonomy is explicitly evolvable.** Agents may add, merge or remove
 types when real usage justifies it. Every relevant change is reasoned and
-logged in [organization-log.md](./learning/organization-log.md).
+logged in the current month's file of the
+[organization log](./learning/organization-log.md).
 
 ## Information types (v1)
 
@@ -59,11 +60,14 @@ Rules:
   `confidential` for personal data and identifiers, `restricted` where
   disclosure could do concrete harm. See
   [privacy and security](../.claude/rules/privacy-security.md).
+  Fuller recording of sensitive documents is opt-in
+  ([optional policies](./optional-policies.md)).
 - **`type:` takes a value from the table above, nothing else.** A satellite
-  file (a dated side file of a person or area) carries the same type as its
-  canonical file. That it is a satellite shows in its name. A new type needs
-  a stated retrieval benefit, a row in the table, and an update to the type
-  list in [linkcheck.py](./scripts/linkcheck.py). Why: invented values
+  or companion file (a dated side file or split-off part of a person, area
+  or project) carries the same type as its canonical file. That it is a
+  satellite shows in its name. A new type needs a stated retrieval
+  benefit, a row in the table, and an update to the type list in
+  [linkcheck.py](./scripts/linkcheck.py). Why: invented values
   spread quickly, get applied inconsistently, and nothing retrieves by them.
   The checker makes adding a type a deliberate act.
 - **New fields only with a concrete, stated benefit.** Fields that go
@@ -77,7 +81,9 @@ Rules:
   sessions that read the sentence.
 - **Current means dated, not flagged.** No `status: current`. Freshness is
   carried by `updated:` and dated history lines
-  ([temporal information](../.claude/rules/temporal-information.md)).
+  ([current state vs. history](../AGENTS.md#current-state-vs-history)).
+- **`status:` only where a lifecycle exists.** System files, journal notes
+  and knowledge files carry none.
 
 ### Status vocabularies
 
@@ -101,7 +107,7 @@ field. It needs a row here and an entry in the field list of
 
 | Field | On | Benefit |
 |---|---|---|
-| `archived:` | archived files | `YYYY-MM-DD`: says **when** it was archived, which `status: archived` does not ([archive workflow](./workflows/archive.md)) |
+| `archived:` | archived files | `YYYY-MM-DD`: says **when** it was archived, which `status: archived` does not. Set by the [archive workflow](./workflows/archive.md) together with `status: archived` |
 | `source:` | captures written by automation | Names the pipeline (e.g. `mail`, `documents`). Together with a source ID in the file name, it lets the next run recognize its own capture instead of writing a duplicate |
 
 Keep a domain field only if it carries information that is not already in

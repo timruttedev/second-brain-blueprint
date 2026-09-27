@@ -1,267 +1,216 @@
 # AGENTS.md: Operating Manual for AI Agents
 
-The rules every AI agent follows when it reads or writes this Second Brain.
-
 This repository is the Second Brain of **<OWNER_NAME>** ("the owner"): a
-personal knowledge operating system for their whole life. Private life,
-family, career, companies, finances, goals, health, travel, learning,
-technical topics, ideas, decisions, people, journal and tasks all live here.
+personal knowledge system for their whole life (family, career, finances,
+goals, health, projects, ideas, decisions, people, journal, tasks).
 
-**The Markdown files in this repository are the canonical source of truth.**
-Not chat logs, and not any model's built-in memory (Claude memory, ChatGPT
-memory, Gemini memory, ...). Those may help as short-lived memory, but
-durable knowledge must live here.
+**The Markdown files here are the source of truth,** not chats or model
+memory. This file holds principles and behavior; processes live in
+[00-system/workflows/](00-system/workflows/README.md), tool tuning in
+[CLAUDE.md](CLAUDE.md) and `.claude/rules/`.
 
-This file defines principles and behavior. Multi-step processes live in
-[00-system/workflows/](00-system/workflows/README.md). Tool-specific tuning
-lives in [CLAUDE.md](CLAUDE.md) and `.claude/rules/`.
+## Operating mode
+
+Mode: single-session
+
+- **single-session** (default): one agent session at a time. Work directly
+  on `main`: commit, run the [pre-commit checks](#pre-commit-checks), push.
+  No worktree, no pull request.
+- **multi-session**: several sessions may run at once (two terminals, a
+  laptop and a cloud agent). Every session works in its own Git worktree on
+  its own branch, and a task ends with a pull request
+  ([multi-session rule](.claude/rules/parallel-sessions.md)).
+
+**To switch,** change the `Mode:` line (an agent may, on the owner's word)
+and record it as a decision. Switch as soon as sessions overlap: two
+sessions sharing one directory silently overwrite each other, and Git does
+not warn. **Scheduled cloud runs always work directly on `main`,** in both
+modes: each has its own fresh checkout
+([automation](00-system/workflows/automation.md)).
 
 ## Language
 
-- **Talk to the owner in <OWNER_LANGUAGE>, always.** Every chat answer,
-  question and status line uses that language, even when the instruction
-  before it was in another language.
-- **Agent instructions are English** (this file, CLAUDE.md, rules,
-  workflows, templates). English works best across models.
-- **Content may be in any language.** Captured notes stay in the language
-  the owner wrote them in. The owner's exact wording is evidence: never
-  translate it away.
-- Artifacts that outlive the session (code, commit messages, pull requests)
-  follow the language their repository prescribes.
+- **Talk to the owner in <OWNER_LANGUAGE>, always,** even when the
+  instruction before was in another language.
+- **Agent instructions are English** (this file, rules, workflows,
+  templates). Content stays in the language the owner wrote it in: their
+  exact wording is evidence, never translate it away. Commits and pull
+  requests follow the language their repository prescribes.
 
 ## Core principle
 
 > **Preserve knowledge, evolve structure.**
 
-- **Information** (facts, decisions, history, anything the owner created)
-  is valuable and must never be lost.
-- **Organization** (folders, file names, taxonomy, templates, tags,
-  metadata, indexes, workflows) is an implementation detail. Change it
-  whenever that makes the system better.
-
-The current structure is **version 1**, not a fixed schema. The system is
-expected to improve its own organization over time. The full list of
-standing principles: [principles.md](00-system/principles.md).
+**Information** (facts, decisions, history, anything the owner created)
+must never be lost. **Organization** (folders, names, taxonomy, templates,
+metadata, indexes, workflows) is an implementation detail: change it when
+that makes the system better. The structure is **version 1**, not a fixed
+schema ([architecture](00-system/architecture.md),
+[principles](00-system/principles.md)).
 
 ## Repository map
 
 | Path | Purpose |
 |---|---|
-| `00-system/` | The operating system: architecture, principles, taxonomy, indexes, templates, workflows, learning layer, scripts. Not everyday knowledge. |
-| `01-inbox/` | Unsorted capture. Cheap to write, processed later by triage. |
+| `00-system/` | The operating system: architecture, principles, taxonomy, indexes, templates, workflows, learning layer, scripts. |
+| `01-inbox/` | Unsorted capture, processed later by triage. |
 | `02-journal/` | Daily, weekly, monthly and yearly notes and reviews. |
 | `03-projects/` | Time-bounded efforts with an outcome. |
 | `04-areas/` | Ongoing responsibilities without an end date. |
 | `05-people/` | People relevant to the owner's life and work. |
 | `06-knowledge/` | Reusable, durable knowledge. |
 | `07-decisions/` | Decision records (why choices were made). |
-| `08-resources/` | External reference material, links, documents. |
-| `09-archive/` | Inactive content, preserved. Archive before delete. |
+| `08-resources/` | External reference material. |
+| `09-archive/` | Inactive content, preserved. |
 
-Why the shape looks like this: [architecture.md](00-system/architecture.md).
+## How to read
 
-## How to read (retrieval)
-
-Never load the whole repository. Go from narrow to broad:
-
-1. [current-context.md](00-system/current-context.md): current focus,
-   active projects, open loops.
-2. [00-system/indexes/](00-system/indexes/README.md): compact pointers to
-   projects, areas, people, goals, decisions.
-3. The canonical file for the entity in question.
-4. Files it links to directly.
-5. Journal and archive only when the question is about the past.
-
-Search (`rg`, globs, file names, links) before you read a lot of content.
-Details: [retrieval workflow](00-system/workflows/retrieval.md).
+Never load the whole repository. Go narrow to broad:
+[current-context.md](00-system/current-context.md), the
+[indexes](00-system/indexes/README.md), the canonical file, the files it
+links to. Journal and archive only for questions about the past. Search
+(`rg`, globs, links) before reading a lot
+([retrieval](00-system/workflows/retrieval.md)).
 
 ## How to write
 
-1. **Search before create.** Check whether a canonical home already exists.
-2. **Canonicalize instead of duplicate.** Update the existing file. Link
-   instead of copying.
-3. **New file only when no existing home fits.** Start from a template in
-   `00-system/templates/` if one fits. Templates are
-   a starting point, not a straitjacket.
-4. **Classify with the [taxonomy](00-system/taxonomy.md).** When unsure,
-   capture to `01-inbox/`: a note in the wrong place beats a lost note.
-5. **Keep frontmatter minimal.** No field without a concrete retrieval or
-   automation benefit.
-6. **Check style rules mechanically, not by attention.** If the owner has a
-   style rule (a banned character, a banned phrase, a spelling), rereading
-   your own text will miss it. A `grep` over the staged diff will not. Put
-   the command in the
-   [pre-commit checks](.claude/rules/parallel-sessions.md#pre-commit-checks).
-   Why: agents who knew a rule still broke it, and only a mechanical check
-   caught it.
+1. **Search before create.** Update the canonical file; link instead of
+   copying. One canonical location per fact.
+2. **New file only when no home fits.** Templates in `00-system/templates/`
+   are a starting point, not a straitjacket.
+3. **Classify with the [taxonomy](00-system/taxonomy.md),** keep
+   frontmatter minimal. When unsure, capture to `01-inbox/`: a note in the
+   wrong place beats a lost note.
+4. **Never let information vanish.** Removed content reappears in its new
+   home or in `09-archive/`. Check the diff.
+5. **Check style rules by grep, not by attention.** An owner style rule (a
+   banned character, phrase, spelling) gets a pattern in the
+   [pre-commit checks](#pre-commit-checks). Agents who knew a rule still
+   broke it; only the grep caught it.
+6. **Relative Markdown links** (`[text](../07-decisions/file.md)`): they
+   work with Obsidian without depending on it. A move or rename updates
+   every inbound link. Large binaries stay out of Git: keep a reference and
+   a one-line description; small assets live next to their content or in
+   `08-resources/`.
 
 ## Current state vs. history
 
-The system must understand time.
-
-- The **latest explicit statement by the owner defines current state.**
-- Previous state stays as history. Update in place and keep a short dated
-  history line (or rely on Git for trivial values). Never silently erase a
-  fact that once was true.
-- When the owner corrects something: update the current fact, keep relevant
-  history, and mark the superseded assumption as corrected.
-- Explicit owner statements always outrank AI inference.
-
-Details: [temporal information rule](.claude/rules/temporal-information.md).
-
-## Facts vs. assumptions
-
-Never let AI inference silently become a personal fact. When it matters,
-label information as one of: confirmed fact, user statement, decision,
-assumption, hypothesis, AI suggestion, idea, external information.
-Record relevant uncertainty instead of guessing.
-
-## Conflicting information
-
-1. Prefer the newest explicit owner statement.
-2. Update the canonical file to the resolved state.
-3. Keep the superseded version as dated history, with a note on why it
-   changed.
-4. If context cannot resolve the conflict: record both versions, flag the
-   conflict visibly in the file, and ask the owner when possible.
+- The **latest explicit owner statement defines current state** and
+  outranks AI inference.
+- **When a value changes,** update it in place and keep a dated history
+  line (`2026-01-01: A → 2026-06-01: B`). Git suffices for trivial values;
+  anything the owner might ask "since when?" or "why?" about gets the line.
+- **Corrections:** fix the canonical file in the same session, mark the
+  superseded assumption as corrected, not erased.
+- **Date things.** Freshness lives in `updated:` and dated lines, never in
+  a flag like `status: current` (nobody resets it).
+- **Journal files are immutable history.** Correct the canonical file.
+- **Label inference.** AI inference never silently becomes a personal fact.
+  When it matters, label it: confirmed fact, user statement, decision,
+  assumption, hypothesis, AI suggestion, idea, external information.
+- **Unresolvable conflict:** record both versions, flag it visibly, ask.
 
 ## Projects and decisions
 
-- A recurring topic with a goal and an end state is a **project**: it goes
-  to `03-projects/` and is listed in
-  [indexes/projects.md](00-system/indexes/projects.md). Small projects are
-  one file. Structure grows with complexity.
+- A topic with a goal and an end state is a **project** in `03-projects/`,
+  listed in [indexes/projects.md](00-system/indexes/projects.md), one file
+  until it grows ([projects rule](.claude/rules/projects.md)).
 - A durable choice is a **decision record** in `07-decisions/`. Never
-  delete a decision: mark it `superseded` and link the replacement. The
-  system should answer "why did I choose this back then?" years later.
+  delete one: mark it `superseded` and link the replacement
+  ([decision workflow](00-system/workflows/decision-record.md)).
 
-Details: [projects rule](.claude/rules/projects.md),
-[decision workflow](00-system/workflows/decision-record.md).
+## Learning
 
-## Learning and self-optimization
+OBSERVE → PATTERN → HYPOTHESIS → LOW-RISK CHANGE → USE → EVALUATE →
+KEEP / MODIFY / REVERT ([loop](00-system/workflows/learning-loop.md),
+[working memory](00-system/learning/README.md)).
 
-The system learns how to organize information better, not only the
-information itself. The loop:
-
-OBSERVE → DETECT PATTERN → FORM HYPOTHESIS → MAKE LOW-RISK IMPROVEMENT →
-USE SYSTEM → EVALUATE → KEEP / MODIFY / REVERT
-
-Working memory for this lives in
-[00-system/learning/](00-system/learning/README.md):
-
-- `observations.md`: short-lived signals (repeated searches, friction,
-  corrections).
-- `patterns.md`: confirmed patterns (only with enough evidence).
-- `organization-log.md`: significant structural changes, with reasons.
-- `optimization-backlog.md`: improvement ideas not yet worth doing.
-- `system-health.md`: criteria for judging the system's own quality.
-
-Details: [learning loop](00-system/workflows/learning-loop.md).
+- **Observations and the organization log are split by month.** The
+  signposts `observations.md` and `organization-log.md` hold the format and
+  a month table only. Entries go into the current month's file in
+  `00-system/learning/observations/` or
+  `00-system/learning/organization-log/` (`YYYY-MM.md`); create it and add a
+  table row if missing.
+- **Patterns need evidence:** about three occurrences or owner confirmation.
+- **A rule nothing checks does not hold.** When sessions that knew a rule
+  keep breaking it, make a script or grep check it.
 
 ## Structural autonomy and its limits
 
-Agents **may** do these on their own (low risk), when there is a clear
-benefit and never for its own sake: move or rename files, create or merge
-folders, split oversized files or categories, consolidate redundant
-AI-generated content, improve indexes, templates and workflows, simplify
-metadata, fix links.
+Agents **may**, with a clear benefit and never for its own sake: move or
+rename files, create or merge folders, split oversized files, consolidate
+redundant AI-generated content, improve indexes, templates and workflows,
+simplify metadata, fix links. No preemptive folders, no empty categories.
+For significant changes: update every reference (`rg` the old path), log it
+in the current month's organization-log file, update
+[architecture.md](00-system/architecture.md) if the described state
+changed, verify nothing was lost
+([reorganization](00-system/workflows/reorganization.md)).
 
-For significant changes: update all references, record the change in
-[organization-log.md](00-system/learning/organization-log.md), review the
-Git diff, and verify no knowledge was lost.
+Agents **must not**, without explicit owner consent: delete important
+historical information, irreversibly delete raw notes, send confidential
+content to external systems, modify external systems, store secrets, or
+perform mass destructive cleanup.
 
-Agents **must not**, without explicit owner consent:
+**Archive before delete** applies to canonical content. **Processed inbox
+captures are the exception:** once triage has filed them, delete them. Git
+history is the archive for raw captures.
 
-- delete important historical information,
-- irreversibly delete raw notes,
-- send confidential content to external systems,
-- modify external systems,
-- store secrets,
-- perform mass destructive cleanup.
-
-When something seems obsolete: **archive before delete.** Git history is
-the safety net, not a license to destroy.
-
-## Optimization priorities
-
-In this order:
-
-1. reliable retrieval
-2. fast context understanding
-3. few duplicates
-4. low maintenance
-5. low capture friction
-6. small AI contexts
-7. machine readability
-8. human readability
-9. simple structure
-
-Do **not** optimize for pretty trees, tag volume or ontological perfection.
+**Priorities, in order:** reliable retrieval, fast context understanding,
+few duplicates, low maintenance, low capture friction, small AI contexts,
+machine readability, human readability, simple structure. Never pretty
+trees, tag volume or ontological perfection.
 
 ## Git
 
-Git is the sync layer, the version history, the audit log, and the safety
-net that makes structural autonomy acceptable.
+Git is history, sync and the safety net that makes structural autonomy
+acceptable.
 
-- **Small, text-based changes.** Stable formats. Avoid conflict-prone
-  patterns (that is why inbox captures are atomic files). No generated
-  binaries.
-- **Check before larger reorganizations.** Read `git status`, never destroy
-  uncommitted changes you did not make, keep one logical change per commit,
-  review the final diff.
-- **Commit messages say what and why.**
-- **Work in your own branch.** One session, one worktree, one branch. Why:
-  two sessions sharing one directory silently overwrite each other, and Git
-  does not warn. Procedure:
-  [parallel sessions rule](.claude/rules/parallel-sessions.md).
-- **Run the pre-commit checks before every commit:** the link check, a scan
-  of the diff for deletions, and any mechanical style checks. A push
-  publishes, so the check for secrets, accidental deletions and misplaced
-  `confidential` content happens **before** the commit. List:
-  [pre-commit checks](.claude/rules/parallel-sessions.md#pre-commit-checks).
-- **Pushing needs no permission** once the checks passed, unless the owner
-  says otherwise for a specific piece of work. Never rewrite pushed history.
-- **A task ends with a pull request.** As soon as the first draft stands
-  (built, checked, presentable), open a pull request without being asked.
-  Whatever is still open goes into the pull request text. A follow-up on a
-  branch whose pull request is already open needs no second one. Details:
-  [pull requests rule](.claude/rules/pull-requests.md).
-- **Routine captures may be merged right away.** For ordinary owner-provided
-  entries (a journal note, a logged workout, a quick fact), the owner may
-  decide that the pull request is merged immediately without review. Record
-  that choice as a decision if the owner makes it.
+- **Small, text-based changes,** no generated binaries. Inbox captures are
+  atomic files so they merge without conflicts.
+- **Before larger reorganizations** read `git status`, never destroy
+  uncommitted changes you did not make, one logical change per commit.
+- **Commit messages say what and why.** Run the
+  [pre-commit checks](#pre-commit-checks) first: a push publishes, so the
+  commit is the last gate.
+- **Push without asking** once the checks passed, unless the owner says
+  otherwise for a piece of work. Never rewrite pushed history.
+- **Where work lands depends on the [operating mode](#operating-mode).**
+  Single-session: `main`. Multi-session: the session branch, a pull request
+  when the first draft stands, routine captures merged right away
+  ([pull requests rule](.claude/rules/pull-requests.md)). Specs and plans
+  are never committed, in either mode (same rule).
 
-## Internal links
+## Pre-commit checks
 
-- Use standard relative Markdown links: `[text](../07-decisions/file.md)`.
-  Every agent and Obsidian can read them. The repository must work with
-  Obsidian but never depend on it.
-- Every move or rename updates all inbound links (search for the old path
-  and name). No reorganization may leave broken links. The
-  [link checker](00-system/scripts/linkcheck.py) finds the ones you missed.
+```bash
+# 1. Links, anchors, frontmatter, code fences, max_lines, due evaluations
+python3 00-system/scripts/linkcheck.py --orphans
+# 2. Deletions: an additive change prints nothing. Not "^-[^-]": that
+#    hides deleted bullet lines ("-- item").
+git diff --cached | grep "^-" | grep -v "^--- "
+# 3. Style: one pattern per owner rule. Keep LC_ALL: under POSIX, grep -P
+#    compares bytes and multi-byte characters give false hits.
+LC_ALL=C.UTF-8 git diff --cached | grep "^+" | LC_ALL=C.UTF-8 grep -P "<pattern>"
+# 4. Secrets: read every hit
+git diff --cached | grep "^+" | grep -inE "password|passwd|api[_-]?key|secret|token|private key"
+```
 
-## Attachments
-
-This is a knowledge base, not a file dump.
-
-- Small, relevant assets (an image, a PDF) may live next to their content or
-  in `08-resources/`, clearly named.
-- Large binaries (videos, big archives) stay out of version control. Store
-  them elsewhere and keep a reference plus a one-line description here.
-- Build no storage infrastructure until it is actually needed.
+A style hit is text to rewrite or a documented exception (a verbatim quote,
+a delimiter in a documented line format). Check 4 includes a look for
+`confidential` content in a file not marked for it. A
+[canary](00-system/scripts/canary.md) proves check 1 still finds problems.
 
 ## Privacy and security
 
-- **Never store secrets:** no passwords, API keys, tokens, recovery codes,
-  private keys. Record where a secret lives ("in the password manager, entry
-  X"), never its value.
-- **Sensitivity levels:** `public`, `private` (default), `confidential`,
-  `restricted`. Mark `confidential` and `restricted` in frontmatter.
+- **Never store secrets.** Record where a secret lives, never its value.
+- **Sensitivity:** `public`, `private` (default), `confidential`,
+  `restricted`. Mark the non-default ones in frontmatter.
 - **Never send repository content to external services** beyond what the
-  owner's current task requires. If the owner deliberately allows a
-  standing exception (for example a daily briefing to a private channel),
-  record it as a decision, scoped to that one service.
-- **Third parties:** store only information with a meaningful connection to
-  the owner's life, projects or open loops. No profile building.
-
-Details: [privacy and security rule](.claude/rules/privacy-security.md).
+  current task requires. A standing exception is a decision, scoped to one
+  service.
+- **Third parties:** only what connects to the owner's life, projects or
+  open loops. No profile building.
+- Details: [privacy rule](.claude/rules/privacy-security.md). Fuller
+  recording (medical, legal) is opt-in:
+  [optional policies](00-system/optional-policies.md).

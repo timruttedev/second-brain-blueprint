@@ -49,13 +49,13 @@ class TestSlug(unittest.TestCase):
                          "unresolved-open-questions")
 
     def test_underscore_stays(self):
-        self.assertEqual(lc.slug("### `SSH_FINGERPRINT` belongs to the host key"),
-                         "ssh_fingerprint-belongs-to-the-host-key")
+        self.assertEqual(lc.slug("### The `max_lines` field"),
+                         "the-max_lines-field")
 
     def test_emoji_leaves_two_hyphens(self):
-        # '8.4a ⚠️ The' -> dot gone, emoji gone, both spaces stay
-        self.assertEqual(lc.slug("### 8.4a ⚠️ The file"),
-                         "84a--the-file")
+        # 'Step 1.2 ⚠️ Setup' -> dot gone, emoji gone, both spaces stay
+        self.assertEqual(lc.slug("### Step 1.2 ⚠️ Setup"),
+                         "step-12--setup")
 
     def test_bold_and_link(self):
         self.assertEqual(lc.slug("## **Plan** versus [actual](./x.md)"),
@@ -67,6 +67,14 @@ class TestSlug(unittest.TestCase):
 
     def test_heading_in_code_block_does_not_count(self):
         text = "```bash\n# not an anchor\n```\n\n## Real\n"
+        self.assertEqual(lc.anchors(text), {"real"})
+
+    def test_heading_in_tilde_fence_does_not_count(self):
+        text = "~~~\n## Format example\n~~~\n\n## Real\n"
+        self.assertEqual(lc.anchors(text), {"real"})
+
+    def test_heading_in_html_comment_does_not_count(self):
+        text = "<!--\n## Hidden\n-->\n## Real\n"
         self.assertEqual(lc.anchors(text), {"real"})
 
 
@@ -223,6 +231,18 @@ class TestOrphans(unittest.TestCase):
             files = sorted(root.rglob("*.md"))
             self.assertEqual([p.name for p in lc.orphans(files)], ["unused.md"])
 
+    def test_examples_take_no_part(self):
+        # Neither reported as orphans, nor able to hide a real orphan.
+        with TempRoot() as root:
+            (root / "examples" / "06-knowledge").mkdir(parents=True)
+            (root / "examples" / "06-knowledge" / "sample.md").write_text(
+                "See `lonely.md` and `06-knowledge/lonely.md`.", encoding="utf-8")
+            (root / "06-knowledge").mkdir()
+            (root / "06-knowledge" / "lonely.md").write_text("a", encoding="utf-8")
+            files = sorted(root.rglob("*.md"))
+            self.assertEqual([lc.relative(p) for p in lc.orphans(files)],
+                             ["06-knowledge/lonely.md"])
+
     def test_readme_and_journal_are_not_orphans(self):
         with TempRoot() as root:
             (root / "02-journal").mkdir()
@@ -281,7 +301,11 @@ class TestTypes(unittest.TestCase):
         files = self.write("---\ntype: invented\n---\n")
         findings = lc.types(files)
         self.assertEqual(len(findings), 1)
-        self.assertEqual(lc.show(findings[0][0]), files[0].as_posix())
+        self.assertEqual(lc.relative(findings[0][0]), files[0].as_posix())
+
+    def test_empty_type_does_not_swallow_next_line(self):
+        files = self.write("---\ntype:\nstatus: active\n---\n")
+        self.assertEqual(lc.types(files), [])
 
 
 class TestFrontmatter(unittest.TestCase):
@@ -342,6 +366,30 @@ class TestFrontmatter(unittest.TestCase):
             path.write_text("---\nname: brain-triage\ndescription: x\n---\n",
                             encoding="utf-8")
             self.assertEqual(lc.frontmatter([path]), [])
+
+    def test_known_sensitivities_are_silent(self):
+        for level in ("public", "private", "confidential", "restricted"):
+            with self.subTest(level=level):
+                self.assertEqual(lc.frontmatter(self.write(
+                    f"---\ntype: person\nsensitivity: {level}\n---\n")), [])
+
+    def test_unknown_sensitivity_is_reported(self):
+        files = self.write("---\ntype: person\nsensitivity: secret\n---\n")
+        self.assertEqual([(no, k, v) for _, no, k, v in lc.frontmatter(files)],
+                         [(3, "sensitivity", "secret")])
+
+    def test_sensitivity_in_body_does_not_count(self):
+        self.assertEqual(lc.frontmatter(self.write(
+            "---\ntype: area\n---\n\nsensitivity: whatever\n")), [])
+
+    def test_github_directory_is_exempt(self):
+        with TempRoot() as root:
+            (root / ".github" / "ISSUE_TEMPLATE").mkdir(parents=True)
+            path = root / ".github" / "ISSUE_TEMPLATE" / "bug.md"
+            path.write_text("---\nname: Bug\nabout: x\ntype: bug\n---\n",
+                            encoding="utf-8")
+            self.assertEqual(lc.frontmatter([path]), [])
+            self.assertEqual(lc.types([path]), [])
 
     def test_several_findings_in_one_file(self):
         files = self.write("---\nstatus: nonsense\ninvented: yes\n---\n")
@@ -447,10 +495,79 @@ class TestDueEvaluations(unittest.TestCase):
         files = self.write(self.ENTRY.format("_pending, check at the next review._"))
         self.assertEqual(len(lc.due_evaluations(files, today=date(2030, 3, 1))), 1)
 
+    def test_german_date_is_not_a_deadline(self):
+        # Only ISO dates count. A DD.MM.YYYY date is prose, so the entry
+        # falls under the grace period instead.
+        files = self.write(self.ENTRY.format("_open, review on 20.01.2030._"))
+        self.assertEqual(lc.due_evaluations(files, today=date(2030, 1, 21)), [])
+
+    def test_examples_log_is_exempt_unless_asked(self):
+        folder = self.folder / "examples" / "00-system" / "learning" / "organization-log"
+        folder.mkdir(parents=True)
+        path = folder / "2030-01.md"
+        path.write_text(self.ENTRY.format("_open, review on 2030-01-20._"),
+                        encoding="utf-8")
+        self.assertEqual(lc.due_evaluations([path], today=date(2030, 6, 1)), [])
+        self.assertEqual(len(lc.due_evaluations(
+            [path], today=date(2030, 6, 1), include_examples=True)), 1)
+
     def test_file_outside_the_log_is_exempt(self):
         path = self.folder / "anything.md"
         path.write_text(self.ENTRY.format("_open._"), encoding="utf-8")
         self.assertEqual(lc.due_evaluations([path], today=date(2030, 6, 1)), [])
+
+
+class TestSignposts(unittest.TestCase):
+    """Dated entries belong in the month files, not in the signposts."""
+
+    def setUp(self):
+        self.root = TempRoot()
+        self.folder = self.root.__enter__()
+        (self.folder / "00-system" / "learning" / "observations").mkdir(parents=True)
+
+    def tearDown(self):
+        self.root.__exit__()
+
+    def write(self, rel, text):
+        path = self.folder / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return [path]
+
+    def test_dated_heading_in_orglog_signpost_is_reported(self):
+        files = self.write("00-system/learning/organization-log.md",
+                           "# Organization Log\n\n## 2030-01-06: Moved x\n")
+        self.assertEqual([no for _, no in lc.signpost_entries(files)], [3])
+
+    def test_dated_bullet_in_observations_signpost_is_reported(self):
+        files = self.write("00-system/learning/observations.md",
+                           "# Observations\n\n- 2030-01-15: friction\n")
+        self.assertEqual([no for _, no in lc.signpost_entries(files)], [3])
+
+    def test_format_example_in_fence_is_silent(self):
+        files = self.write("00-system/learning/organization-log.md",
+                           "# Log\n\n```\n## 2030-01-06: example\n```\n"
+                           "- `## YYYY-MM-DD` is the heading format\n")
+        self.assertEqual(lc.signpost_entries(files), [])
+
+    def test_month_file_is_not_a_signpost(self):
+        files = self.write("00-system/learning/observations/2030-01.md",
+                           "- 2030-01-15: friction\n")
+        self.assertEqual(lc.signpost_entries(files), [])
+
+    def test_examples_signpost_is_checked_too(self):
+        files = self.write("examples/00-system/learning/organization-log.md",
+                           "## 2030-01-06: Moved x\n")
+        self.assertEqual(len(lc.signpost_entries(files)), 1)
+
+
+class TestCli(unittest.TestCase):
+    def test_unknown_flag_is_rejected(self):
+        import subprocess
+        r = subprocess.run([sys.executable, str(pathlib.Path(lc.__file__)),
+                            "--no-such-flag"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("unrecognized arguments", r.stderr)
 
 
 if __name__ == "__main__":

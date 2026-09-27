@@ -22,6 +22,10 @@ Example: `2000-01-01-1942-idea-budget-dashboard.md`
 Why one file per capture: two devices never write to the same file, so Git
 never has to merge a conflict.
 
+**After triage the capture is deleted.** Its content now lives in its
+canonical home, and Git history keeps the raw capture. "Archive before
+delete" applies to canonical content, not to processed captures.
+
 ## Automated captures
 
 Ingest pipelines (mail, documents, calendars, chat) can drop captures here

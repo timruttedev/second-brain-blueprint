@@ -27,5 +27,5 @@ apart from history, and owner statements apart from assumptions or AI
 suggestions, as the files label them.
 
 If retrieval was hard (wrong guesses, repeated searches), add a one-line
-entry to `00-system/learning/observations.md`. That is how the structure
+entry to the current month's file in `00-system/learning/observations/`. That is how the structure
 learns where it fails.

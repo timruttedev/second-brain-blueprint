@@ -24,11 +24,13 @@ Per capture:
 
 1. Find the canonical home and update it. Create a new file only when no
    existing home makes sense.
-2. Delete the processed capture. Git keeps the raw history.
+2. Delete the processed capture (not archived: Git keeps the raw text).
 
 Afterwards: update the touched indexes in `00-system/indexes/` and
-`00-system/current-context.md`, and put notable friction into
-`00-system/learning/observations.md`.
+`00-system/current-context.md`, put notable friction into the current
+month's file in `00-system/learning/observations/`, run linkcheck, and
+commit (and in multi-session mode: follow the pull-request rule in
+AGENTS.md).
 
 For ambiguous items, make a sensible call and say so. If an item is
 genuinely undecidable, leave it in the inbox with a one-line note.

@@ -1,0 +1,25 @@
+# Mechanical checks on every push and pull request: links, anchors,
+# frontmatter, line budgets, due evaluations, orphans, and the script tests.
+# The same commands run locally before a commit (see
+# 00-system/workflows/system-health-check.md).
+name: checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Link and structure check
+        run: python3 00-system/scripts/linkcheck.py --orphans
+      - name: Script tests
+        run: python3 -m unittest discover -s 00-system/scripts -t 00-system/scripts

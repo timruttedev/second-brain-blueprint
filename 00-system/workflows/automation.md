@@ -24,16 +24,23 @@ agent on a fresh checkout of this repository works the same way.
 
 ### What the journal run does
 
-Each step is skipped when its output already exists:
-
 | Step | Condition | Writes |
 |---|---|---|
-| Daily | any of the **last 7 days** has no file | `02-journal/daily/YYYY-MM-DD.md` |
+| Daily | each of the **last 7 days before today** (never today) that has evidence | creates `02-journal/daily/YYYY-MM-DD.md`, or appends to it |
 | Weekly | the ISO week of *today minus 7 days* has no file | `02-journal/weekly/YYYY-Www.md` |
 | Monthly | the **previous calendar month** has no file | `02-journal/monthly/YYYY-MM.md` |
 
+One rule for the dailies: **a day without evidence gets no file**, and an
+existing daily is never rewritten. If the day's commits or inbox files
+show something the existing daily lacks, the run appends it at the end
+under a heading `## Added later`. Why today is excluded: the day is not
+over, and a file written at 07:00 would claim a complete day. Weeklies and
+monthlies are written once; an existing file means that period is done.
+
 The windows are the catch-up: a failed or skipped run is repaired by the
-next one, without backfilling the whole history. Nothing is rewritten.
+next one, without backfilling the whole history. The unattended weekly
+**skips inbox triage**: the [nightly triage](./triage.md) owns the inbox,
+and two runs filing the same capture would collide.
 
 This routine is also the only carrier of the learning loop's feedback steps
 (due evaluations in the weekly; health check, optimize, promotion and
@@ -45,7 +52,8 @@ thinning in the monthly). If it silently fails, the system stops learning.
    repository there.** Why: a routine created by an agent (through an API
    or tool call) may start with no repository attached. It then runs on an
    empty workspace, does nothing, and still reports success.
-2. Paste the matching prompt from below. Replace `<TIMEZONE>`.
+2. Paste the matching prompt from below and check that its time zone
+   (`<TIMEZONE>`) is yours.
 3. Give the routine permission to push to `main`.
 4. Start one manual test run and check for the heartbeat commit (next
    section). Only that commit proves the setup works.
@@ -92,10 +100,12 @@ not "fix" this by always updating `last_run`.
   new script, merge the script first, then update the prompt the same day.
 - **Every path a prompt names must exist.** Let the run check them as step
   0 and report any missing one in its heartbeat note.
-- **No worktree.** Each run gets its own cloud checkout, which already
-  gives the isolation the [worktree rule](../../.claude/rules/parallel-sessions.md)
-  asks for. The runs work directly on `main`, commit and push. This
-  exception holds only while nobody else works in that checkout.
+- **Directly on `main`, in both operating modes.** Each run gets its own
+  fresh cloud checkout that nobody else types in, so it already has the
+  isolation that multi-session mode creates with worktrees; a branch and a
+  pull request would only wait for a reviewer who is asleep. The runs
+  commit and push to `main`. This holds only while nobody else works in
+  that checkout.
 - **The checkout may be shallow and stale.** A local `main` can be days
   behind, and `refusing to merge unrelated histories` is then a
   shallow-clone artifact, not rewritten history. With a clean tree, the
@@ -116,28 +126,24 @@ This is the only routine that writes the weekly and monthly reviews and with the
 
 RULES
 1. Read AGENTS.md and CLAUDE.md first; they and .claude/rules/ are binding. The repository wins over this prompt; report any contradiction.
-2. No worktree. Work on main, commit, push (exception in 00-system/workflows/automation.md).
+2. Work directly on main, commit, push, in any operating mode. For a shallow or stale checkout see "Lessons" in 00-system/workflows/automation.md.
 3. Follow 00-system/workflows/reviews.md. It overrides this prompt if the two disagree.
-4. Journal files are immutable: an existing file means that period is done.
-5. Step 0: check that every path named here exists. Name any missing one in the heartbeat note and in 00-system/learning/observations.md.
-
-CHECKOUT
-The checkout may be shallow and local main may be stale. "refusing to merge unrelated histories" is a shallow-clone artifact. With a clean tree: git fetch origin main, git switch --detach origin/main, and at the end git push origin HEAD:main.
+4. Step 0: check that every path named here exists. Name any missing one in the heartbeat note and in the current month's file in 00-system/learning/observations/.
 
 DATES
 Journal days are <TIMEZONE> days. Compute dates with TZ=<TIMEZONE> date. For day boundaries use: TZ=<TIMEZONE> git log --no-merges --date=format-local:'%Y-%m-%d %H:%M' --format='%ad %h %s'
-Never write a journal file for a period without evidence, and nothing before the first commit.
+Nothing before the first commit.
 
-STEP 1, DAILY: for each of the last 7 days without 02-journal/daily/YYYY-MM-DD.md, reconstruct it from that day's commits, the files they touched and new inbox files. Say at the top that it was written after the fact. A day with nothing gets a short entry saying so. Never invent.
+STEP 1, DAILY: for each of the 7 days before today (never today), collect that day's evidence: commits, the files they touched, new inbox files. No evidence: write no file. Evidence and no daily: write 02-journal/daily/YYYY-MM-DD.md from it and say at the top that it was written after the fact. Evidence the existing daily lacks: append it at the end under "## Added later". Never rewrite existing text, never invent.
 
-STEP 2, WEEKLY: previous ISO week = TZ=<TIMEZONE> date -d '7 days ago' +%G-W%V. If 02-journal/weekly/<week>.md is missing, run every step of reviews.md "Weekly", including the due evaluations in 00-system/learning/organization-log.md.
+STEP 2, WEEKLY: previous ISO week = TZ=<TIMEZONE> date -d '7 days ago' +%G-W%V. If 02-journal/weekly/<week>.md is missing, run every step of reviews.md "Weekly" except inbox triage (the nightly triage owns the inbox), including the due evaluations in 00-system/learning/organization-log/.
 
-STEP 3, MONTHLY: previous month = TZ=<TIMEZONE> date -d "$(TZ=<TIMEZONE> date +%Y-%m-01) -1 day" +%Y-%m. If 02-journal/monthly/<month>.md is missing, run every step of reviews.md "Monthly" (health check, optimize, promote, thin, at most 1 to 2 backlog items, quarterly look outside). Propose big restructurings to the owner instead of doing them.
+STEP 3, MONTHLY: previous month = TZ=<TIMEZONE> date -d "$(TZ=<TIMEZONE> date +%Y-%m-01) -1 day" +%Y-%m. If 02-journal/monthly/<month>.md is missing, run every step of reviews.md "Monthly" (health check, optimize, promote, thin, at most 1 to 2 backlog items; the quarterly look outside when that month is March, June, September or December). Propose big restructurings to the owner instead of doing them.
 
 STEP 4, HEARTBEAT, ALWAYS: in 00-system/sync/state/automation-runs.json, key "journal": last_run = current UTC ISO time only on success (leave it untouched on failure); status ok or failed; note one short line. Commit it either way.
 
 FINISH
-python3 00-system/scripts/linkcheck.py --orphans must exit clean. Check deletions: git diff --cached | grep "^-" | grep -v "^--- ". Check for secrets and misplaced confidential content before committing. Commit message says what and why. Never rewrite pushed history. Final report: files created, steps skipped and why, evaluations closed, heartbeat written, contradictions found.
+python3 00-system/scripts/linkcheck.py --orphans must exit clean. Check deletions: git diff --cached | grep "^-" | grep -v "^--- ". Check for secrets and misplaced confidential content before committing. Commit message says what and why. Never rewrite pushed history. Final report: files created or appended, steps skipped and why, evaluations closed, heartbeat written, contradictions found.
 ```
 
 ## Example prompt: nightly inbox triage
@@ -147,16 +153,13 @@ You are the scheduled nightly inbox triage for this Second Brain repository. Nob
 
 RULES
 1. Read AGENTS.md and CLAUDE.md first; they and .claude/rules/ are binding. The repository wins over this prompt; report any contradiction.
-2. No worktree. Work on main, commit, push (exception in 00-system/workflows/automation.md).
+2. Work directly on main, commit, push, in any operating mode. For a shallow or stale checkout see "Lessons" in 00-system/workflows/automation.md.
 3. Follow 00-system/workflows/triage.md. It overrides this prompt if the two disagree.
-4. Step 0: check that every path named here exists. Name any missing one in the heartbeat note and in 00-system/learning/observations.md.
-
-CHECKOUT
-The checkout may be shallow and local main may be stale. "refusing to merge unrelated histories" is a shallow-clone artifact. With a clean tree: git fetch origin main, git switch --detach origin/main, and at the end git push origin HEAD:main.
+4. Step 0: check that every path named here exists. Name any missing one in the heartbeat note and in the current month's file in 00-system/learning/observations/.
 
 STEP 1, BRANCHES: run python3 00-system/scripts/branch_overview.py --fetch. Do not merge branches. Before touching a file it reports as a collision, read the other branch's version.
 
-STEP 2, TRIAGE: if 01-inbox/ holds only README.md, there is nothing to do; go to step 3. Otherwise process every capture per triage.md: split mixed captures by topic, search before create, update canonical files, link every filed item from the file that owns its topic, delete processed captures. An undecidable capture stays in the inbox with a one-line note: never guess. A value that needs a look at an original document you cannot open stays in the inbox too. Update touched indexes and 00-system/current-context.md.
+STEP 2, TRIAGE: if 01-inbox/ holds only README.md, there is nothing to do; go to step 3. Otherwise process every capture per triage.md: split mixed captures by topic, search before create, update canonical files, link every filed item from the file that owns its topic, delete processed captures (Git keeps them). An undecidable capture stays in the inbox with a one-line note: never guess. A value that needs a look at an original document you cannot open stays in the inbox too. Update touched indexes and 00-system/current-context.md.
 
 STEP 3, HEARTBEAT, ALWAYS (also on an empty inbox or a failed run): in 00-system/sync/state/automation-runs.json, key "triage": last_run = current UTC ISO time only on success (leave it untouched on failure); status ok or failed; note one short line. Commit it either way.
 

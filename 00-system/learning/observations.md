@@ -3,10 +3,12 @@
 Short-lived, dated signals about how the system is (or is not) working.
 Newest first. **Not every observation becomes a rule.**
 
-Entries live in [`observations/`](./observations/), one file per month.
-This file is only the signpost. A new observation goes into the file for
-the current month; if that file does not exist yet, create it and add a row
-here.
+Entries live in [`observations/`](./observations/), one file per month
+(`observations/YYYY-MM.md`). This file is only the signpost: format and
+month table, no entries. A new observation goes into the current month's
+file in `00-system/learning/observations/`; if that file does not exist
+yet, create it and add a row to the table below. `linkcheck.py` reports a
+dated entry written here instead.
 
 | Month | File |
 |---|---|

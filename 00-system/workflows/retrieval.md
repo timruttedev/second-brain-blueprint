@@ -41,6 +41,6 @@ journal / history / archive         (only for questions about the past)
 ## Learning signal
 
 If something was hard to find (wrong guesses, repeated searches), that is an
-observation for
-[`observations.md`](../learning/observations.md). Repeated retrieval
+observation for the current month's file in
+[`observations/`](../learning/observations/). Repeated retrieval
 failures are the main trigger for index and structure improvements.

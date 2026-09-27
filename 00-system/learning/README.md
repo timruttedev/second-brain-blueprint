@@ -19,10 +19,19 @@ review time.
 
 - `observations.md` and `organization-log.md` stay at their paths as entry
   points. They hold the format and the month table, no entries.
-- New entries go into the file for the current month. Create it if it does
-  not exist yet, and add it to the table.
+- New entries go into the current month's file (`YYYY-MM.md`). Create it
+  if it does not exist yet, and add it to the signpost's table.
 - Search the whole folder, not just the current month, because a repetition
   often sits in the previous month:
   `rg "<keyword>" 00-system/learning/observations/`.
 - Why: append-only logs grow fast. One file per month keeps each file small
   enough to load, while the signpost keeps the path stable for links.
+
+## Why the month folders exist from day one
+
+`observations/` and `organization-log/` ship empty (with a `.gitkeep`)
+instead of appearing with the first entry. `linkcheck.py` reads
+`organization-log/` for due evaluations and reports dated entries written
+into the signposts, so the place where entries belong has to exist before
+the first one is written. Otherwise the first entry lands in the signpost,
+where no check sees it.

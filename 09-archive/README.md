@@ -11,4 +11,6 @@ go instead of being removed.
 - Archived content is left out of default retrieval; search it only for
   explicitly historical questions.
 - Un-archiving is always allowed: move it back and re-index.
+- Processed inbox captures do not come here. They are deleted after
+  triage; Git history is their archive.
 - Workflow: [archive](../00-system/workflows/archive.md).

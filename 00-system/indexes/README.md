@@ -8,13 +8,15 @@ Maintained during triage and reviews. If an index stops improving retrieval,
 remove it (and log the removal); if a new index would measurably help, add
 it.
 
-**Sub-files hang off their owner's line.** When an entity grows a companion
-file (for example a person's separate health or finance file), it is not a
-new index entry. Append it to the owner's existing line as
-`· [Label](link)`. Why: sub-files are usually `type: knowledge`, so a
-"one line per person or area" pass drops them silently and they become
-unreachable. Check by comparing sub-files on disk against the index, not by
-memory.
+**Companion files hang off their owner's line.** When an entity grows a
+companion file (for example a person's separate health or finance file), it
+is not a new index entry. Append it to the owner's existing line as
+`· [Label](link)`. A companion file carries the same `type:` as its
+canonical file (see [taxonomy](../taxonomy.md)); that it is a companion
+shows in its name. Why the rule is needed anyway: a pass that rebuilds the
+index from canonical files ("one line per person or area") easily skips
+the extra file, and then it becomes unreachable. Check by comparing the
+files on disk against the index, not by memory.
 
 Current indexes:
 
