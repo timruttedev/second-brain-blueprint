@@ -30,5 +30,6 @@ Short synthesis, not a copy of the dailies.
 
 ## System check (quick)
 
-- Inbox triaged? `current-context.md` still accurate? Due evaluations in
-  the organization log done? Anything for `00-system/learning/observations.md`?
+- Inbox triaged (not in an unattended run)? `current-context.md` still
+  accurate? Due evaluations in `00-system/learning/organization-log/` done?
+  Anything for the current month's file in `00-system/learning/observations/`?

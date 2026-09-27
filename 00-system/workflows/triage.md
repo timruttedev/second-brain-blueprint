@@ -5,6 +5,11 @@ canonical knowledge. Run when asked, as part of the weekly review, or nightly
 as a [scheduled routine](./automation.md). The inbox should tend toward
 empty.
 
+**Processed captures are deleted, not archived.** Once a capture's content
+lives in its canonical files, the raw capture has no job left, and Git
+history keeps it. "Archive before delete" ([archive.md](./archive.md))
+applies to canonical content, not to raw captures.
+
 ## Step 1: check what is sitting on branches
 
 Before anything else, in every run:
@@ -15,7 +20,8 @@ python3 00-system/scripts/branch_overview.py --fetch
 
 It lists every remote branch that `main` does not contain: age, commits,
 changed files, and the files that are touched on **several** branches at
-once.
+once. In single-session mode the list is usually empty, and that takes one
+second to confirm.
 
 Why: the inbox is not the only place where unprocessed work waits. A capture
 on an unmerged branch is invisible to a triage on `main`, and two branches
@@ -63,7 +69,7 @@ Delete the capture once, after the last topic is filed.
 **Create a new file only when no existing canonical home makes sense.** If
 several captures point at an emerging topic, that may be the birth of a new
 project or area: create it, add it to the index, and note the signal in
-[`observations.md`](../learning/observations.md).
+the current month's file in [`observations/`](../learning/observations/).
 
 Every filed item must be **linked from the file that owns its topic**
 ([capture.md](./capture.md#filing-is-only-half-connect-it)).
@@ -95,13 +101,15 @@ with a one-line note.
 
 ## After processing a batch
 
-- Delete processed captures: their content now lives canonically, and Git
-  keeps the raw history. Unclear items may stay in the inbox; note repeat
-  offenders as friction observations.
+- Delete processed captures (see the top of this page). Unclear items may
+  stay in the inbox; note repeat offenders as friction observations.
 - Update touched indexes and [`current-context.md`](../current-context.md)
   if focus, projects or loops changed.
-- Record notable friction in [`observations.md`](../learning/observations.md).
-- Run `python3 00-system/scripts/linkcheck.py --orphans` before committing.
+- Record notable friction in the current month's file in
+  [`observations/`](../learning/observations/).
+- Run `python3 00-system/scripts/linkcheck.py --orphans`, then commit (and
+  in multi-session mode: follow the pull-request rule in
+  [AGENTS.md](../../AGENTS.md)).
 
 ## When it runs unattended
 

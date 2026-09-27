@@ -22,8 +22,11 @@ KEEP / MODIFY / REVERT
 
 ## Stages
 
-1. **OBSERVE**: during normal work, note friction and signals in
-   [`observations.md`](../learning/observations.md): repeated searches for
+1. **OBSERVE**: during normal work, note friction and signals in the
+   current month's file in
+   [`observations/`](../learning/observations/) (create it and add it to
+   the table in [the signpost](../learning/observations.md) if it is
+   missing): repeated searches for
    the same thing, two categories always needed together, a template causing
    busywork, a kind of information that keeps getting misfiled, the owner
    correcting the same assumption again. Cheap, dated one-liners. Not every
@@ -40,7 +43,9 @@ KEEP / MODIFY / REVERT
 5. **USE SYSTEM**: let real usage accumulate. No second change on top of an
    unevaluated one in the same spot.
 6. **EVALUATE**: every structural change gets a **review date** in its
-   [`organization-log.md`](../learning/organization-log.md) entry. The
+   entry in the current month's file in
+   [`organization-log/`](../learning/organization-log/), written as
+   `Result: _open, review on YYYY-MM-DD: <what to check>._`. The
    weekly review works off every entry whose date has arrived: did the
    friction disappear? Check against
    [`system-health.md`](../learning/system-health.md).
@@ -61,8 +66,8 @@ a look at outside practice ([optimize.md](./optimize.md#look-outside-once-a-quar
 ## Keep the working memory small
 
 Observations are working memory, not an archive. The monthly review thins
-them: everything promoted to a pattern, resolved, or clearly stale leaves
-the log, each with one line saying where it went. Git keeps what was
+the month's file: everything promoted to a pattern, resolved, or clearly
+stale leaves it, each with one line saying where it went. Git keeps what was
 removed.
 
 ## Guardrails

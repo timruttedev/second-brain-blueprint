@@ -1,6 +1,8 @@
 # YYYY-MM-DD (Weekday)
 
-<!-- Daily notes are for capture and events, not polish. Skip empty sections. -->
+<!-- Daily notes are for capture and events, not polish. Skip empty sections.
+     A past daily is never rewritten: a fact that turns up later goes at the
+     end under "## Added later". -->
 
 ## Events and log
 
@@ -17,4 +19,5 @@
 
 ## Noticed
 
-<!-- Friction, ideas, corrections: candidates for 00-system/learning/observations.md -->
+<!-- Friction, ideas, corrections: candidates for the current month's file
+     in 00-system/learning/observations/ -->

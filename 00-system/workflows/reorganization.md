@@ -21,7 +21,8 @@ Checklist, even for low-risk moves:
    repository (`rg "old-name"`) and fix every link, index entry and mention.
 4. Run `python3 00-system/scripts/linkcheck.py --orphans`; it must exit
    clean.
-5. Commit with a message that says what and why.
+5. Commit with a message that says what and why (and in multi-session
+   mode: follow the pull-request rule in [AGENTS.md](../../AGENTS.md)).
 
 ## Significant changes: extra care
 
@@ -33,8 +34,10 @@ established conventions:
    Is the evidence (patterns, not one-off ideas) actually there?
 2. Execute traceably: one logical change per commit.
 3. Update every reference (step 3 above, thoroughly).
-4. Add an entry to [`organization-log.md`](../learning/organization-log.md)
-   (Observation / Change / Reason / Result with a review date / Reversible).
+4. Add an entry to the current month's file in
+   [`organization-log/`](../learning/organization-log/) (Observation,
+   Change, Reason, Result with a review date, Reversible; format in
+   [the signpost](../learning/organization-log.md)).
 5. Review the Git diff before committing: **is any information lost?**
    Moved is not lost; deleted content must reappear elsewhere or in
    `09-archive/`. A quick check for removed lines:
@@ -50,4 +53,6 @@ systems, changing external systems, storing secrets.
 
 **Archive before delete**: move to `09-archive/` (mirroring the source
 location) instead of removing ([archive.md](./archive.md)). Git history is
-the safety net behind that, not a substitute for it.
+the safety net behind that, not a substitute for it. The one exception is a
+processed inbox capture: its content already lives canonically, so it is
+deleted and Git keeps the raw text ([triage.md](./triage.md)).

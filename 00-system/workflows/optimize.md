@@ -26,8 +26,8 @@ with judgment questions.
 2. **Bigger ideas with unclear benefit: park them** in
    [`optimization-backlog.md`](../learning/optimization-backlog.md). Do not
    act yet.
-3. **Log significant changes** in
-   [`organization-log.md`](../learning/organization-log.md) with a review
+3. **Log significant changes** in the current month's file in
+   [`organization-log/`](../learning/organization-log/) with a review
    date; evaluate them later ([learning-loop.md](./learning-loop.md)).
 
 Evolution over revolution: a small improvement per real problem beats a new
@@ -38,8 +38,9 @@ time, not less.
 
 Everything above judges the system by its own observations. That finds
 friction, but never a better way that nobody here has seen yet. So once a
-quarter, the monthly review of March, June, September and December runs one
-outward step ([reviews.md](./reviews.md#monthly), last step).
+quarter, the monthly reviews written in January, April, July and October
+(covering December, March, June and September) run one outward step
+([reviews.md](./reviews.md#monthly), last step).
 
 1. **Research, dated sources only** (web search; note the date of every
    source and skip anything older than twelve months). Two questions:

@@ -33,4 +33,8 @@ The month in a few paragraphs.
 
 - Walk through `00-system/learning/system-health.md` briefly. New
   observations, patterns confirmed, structural improvements worth doing?
-  Feed `00-system/learning/`. Thin this month's observations file.
+  Feed `00-system/learning/`. Thin this month's file in
+  `00-system/learning/observations/`.
+- Quarterly look outside (only in the monthlies written in January, April,
+  July and October): findings or "nothing worth recording", with the date
+  of the search.

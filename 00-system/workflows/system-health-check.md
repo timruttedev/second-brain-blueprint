@@ -58,12 +58,10 @@ review, or on request. Cheap checks first.
 8. **Instruction size**: are AGENTS.md, CLAUDE.md and `.claude/rules/`
    growing? CLAUDE.md must stay well under 200 lines.
 9. **Metadata that nobody queries**: a documented field that is set but
-   never used for retrieval is a removal candidate. A script can check that
-   a value is valid, not that it is useful; this half stays manual.
-
-   ```bash
-   grep -rh "^type:" --include="*.md" . | sort | uniq -c | sort -rn
-   ```
+   never used for retrieval is a removal candidate. `linkcheck.py` already
+   checks that values are valid; whether a field is ever queried is a
+   judgment question, so this step stays manual: for each documented
+   field, can you name a search, index or script that uses it?
 
 10. **Generated figures still match their source** (only if you have
     scripts that generate files): run their check mode and regenerate on
@@ -85,6 +83,6 @@ review, or on request. Cheap checks first.
 ## Output
 
 - Fix trivial findings immediately (broken links, index rot).
-- Everything else → [`observations.md`](../learning/observations.md)
-  (dated), structural fixes via [reorganization.md](./reorganization.md),
+- Everything else → the current month's file in
+  [`observations/`](../learning/observations/) (dated), structural fixes via [reorganization.md](./reorganization.md),
   bigger ideas → [`optimization-backlog.md`](../learning/optimization-backlog.md).

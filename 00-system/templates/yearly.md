@@ -27,4 +27,5 @@ created: YYYY-MM-DD
 ## System retrospective
 
 - Did the Second Brain get better this year? Which organization changes paid
-  off (see `00-system/learning/organization-log.md`)? What should evolve next?
+  off (see the year's files in `00-system/learning/organization-log/`)? What
+  should evolve next?

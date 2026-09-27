@@ -23,9 +23,10 @@ recurring patterns, changes to existing facts, retrieval failures,
 organization problems, obsolete rules. Persist at the RIGHT level. These are
 gradations, not instant rules:
 
-1. **Observation:** one dated entry in
-   `00-system/learning/observations/YYYY-MM.md`. Single occurrences stop
-   here; note repeat counts (2x, 3x).
+1. **Observation:** one dated entry in the current month's file in
+   `00-system/learning/observations/` (create it and add it to the
+   signpost table if missing). Single occurrences stop here; note repeat
+   counts (2x, 3x).
 2. **Repeated pattern** (about three occurrences, or explicit owner
    confirmation): `00-system/learning/patterns.md`, with the evidence.
 3. **Stable knowledge:** the canonical file (knowledge, project, area,
@@ -42,23 +43,18 @@ owner's fact, and never let this become a chat archive.
 
 ## check
 
-Mechanical first. Run the scripted checks instead of grepping by hand:
+Follow [system-health-check](../../../00-system/workflows/system-health-check.md).
+Mechanical first, with the script instead of a hand-made grep:
 
 ```bash
-python3 00-system/scripts/linkcheck.py --orphans   # links, anchors, orphans, type/status, fences, max_lines, due evaluations
-grep -rh "^type:" --include="*.md" . | sort | uniq -c   # type values against the taxonomy
+python3 00-system/scripts/linkcheck.py --orphans
 ```
 
-**Exit 2 means the check is broken, not the repository:** the canary in
-`00-system/scripts/canary.md` was not found. Fix the script, not the canary,
-and do not go hunting for a bad link.
-
-Then walk the criteria in `00-system/learning/system-health.md`: inbox size,
-stale projects, duplicates, contradictions, orphans, oversized files, dead
-categories, retrieval failures, instruction size, metadata usage. Fix
-trivial findings (broken links, index rot) on the spot; the rest becomes a
-dated observation. Report a short diagnosis: green, findings fixed, findings
-recorded.
+**Exit 2 means the check is broken, not the repository** (the canary was
+not found): fix the script, not the canary. Then walk the remaining steps
+of the workflow against `00-system/learning/system-health.md`. Fix trivial
+findings on the spot; the rest becomes a dated observation. Report a short
+diagnosis: green, findings fixed, findings recorded.
 
 ## judge
 
@@ -74,20 +70,17 @@ problem.
 
 ## change
 
-Only with a concrete benefit. The benefit is retrieval, never aesthetics.
-Always, in this order:
+Follow [reorganization](../../../00-system/workflows/reorganization.md)
+(and [archive](../../../00-system/workflows/archive.md) for retiring
+content). Only with a concrete benefit: retrieval, never aesthetics. The
+short version: make the change, `rg` for the old path or name and fix
+**every** reference, verify in the diff that nothing was lost, run
+linkcheck, commit with what and why (and in multi-session mode: follow the
+pull-request rule in AGENTS.md). Archive before delete, and never destroy
+user content without explicit consent.
 
-1. Make the change.
-2. `rg` for the old path or name and fix **every** reference.
-3. Verify in the diff that no information was lost. Moved is not lost:
-   anything removed reappears elsewhere or in `09-archive/`.
-4. Commit with what and why.
-
-Archive before delete, and never destroy user content without explicit
-consent. A significant change also gets an entry in
-`00-system/learning/organization-log/YYYY-MM.md` and an update to
-`00-system/architecture.md`.
-
-**Every log entry carries a dated `Result:`**, not a vague "check at the
-next review". Why: a vague date is never measured. `linkcheck.py` turns a
-passed date into a finding, so the evaluation actually happens.
+A significant change also gets an entry in the current month's file in
+`00-system/learning/organization-log/`, with a dated result:
+`_open, review on YYYY-MM-DD: <what to check>._` Why: a vague "check at the
+next review" is never measured; `linkcheck.py` turns a passed date into a
+finding.

@@ -6,60 +6,36 @@ description: Run a Second Brain review at the level that was asked for, meaning 
 # Brain Review
 
 Journal notes and reviews at four levels. Canonical workflow:
-[reviews.md](../../../00-system/workflows/reviews.md). Templates:
+[reviews.md](../../../00-system/workflows/reviews.md), which holds every
+step; this file only lists what gets skipped most. Templates:
 `00-system/templates/{daily,weekly,monthly,yearly}.md`. The workflow doc
 wins on any conflict with this file.
 
 Pick the level from what was asked. **Each level reads the one below it**,
 so when several are due they run in order in one session, never in
-parallel. Journal files are history: append, and correct with a dated line,
-never rewrite a past day.
+parallel.
 
-## Daily
+- **Daily** (`02-journal/daily/YYYY-MM-DD.md`): cheap and unpolished.
+  Durable content also goes to its canonical file or the inbox. A past
+  daily is never rewritten; a late fact goes at its end under
+  `## Added later`.
+- **Weekly** (`02-journal/weekly/YYYY-Www.md`): the step that gets skipped
+  is **the due evaluations** in `00-system/learning/organization-log/`.
+  Every open `Result:` whose review date has arrived gets a verdict (keep,
+  modify, revert) or a concrete new date.
+- **Monthly** (`02-journal/monthly/YYYY-MM.md`): the steps that get skipped
+  are the system health pass (`/brain-system check`, then `judge`) and
+  **thinning the month's file** in `00-system/learning/observations/`. In
+  the monthlies written in January, April, July and October, also the
+  quarterly look outside.
+- **Yearly** (`02-journal/yearly/YYYY.md`): includes the system
+  retrospective against the year's files in
+  `00-system/learning/organization-log/`.
 
-`02-journal/daily/YYYY-MM-DD.md`, created from the template when missing,
-empty sections skipped. Append events, captures and tasks to the right
-section. Dailies are cheap and unpolished. Durable content mentioned here
-also goes to its canonical file (or to the inbox), so it does not live only
-in the daily.
+When done, commit (and in multi-session mode: follow the pull-request rule
+in AGENTS.md).
 
-## Weekly
-
-`02-journal/weekly/YYYY-Www.md`. Triage the inbox first, then condense this
-week's dailies (condense, do not copy), walk the active projects for
-progress, blockers and stagnation, check `00-system/indexes/todos.md`, and
-update `00-system/current-context.md`.
-
-**The step that gets skipped: the due evaluations** in
-`00-system/learning/organization-log/`. Every entry whose `Result:` is still
-open and whose review date has arrived gets a verdict (keep, modify,
-revert) or a concrete new date. A permanently open `Result:` is not a valid
-state; `linkcheck.py` reports it once the date has passed.
-
-## Monthly
-
-`02-journal/monthly/YYYY-MM.md`. Read the month's weeklies, look for the
-larger patterns (recurring themes, where attention actually went, projects
-to archive or recommit to), check the goals, then run the system health pass
-via `/brain-system check`, promote confirmed observations to
-`00-system/learning/patterns.md`, and pick at most one or two items from the
-optimization backlog.
-
-**The second step that gets skipped: thinning the month's observations.**
-Everything promoted, resolved or clearly stale leaves
-`00-system/learning/observations/YYYY-MM.md`, each with one line saying
-where it went. Git keeps what was removed.
-
-## Yearly
-
-`02-journal/yearly/YYYY.md`: long-term development from the monthlies,
-major decisions and their outcomes, goal retrospective, plus the system
-retrospective against `00-system/learning/organization-log.md`.
-
-## Automation
-
-The daily, weekly and monthly levels can also run unattended as a scheduled
-cloud routine, each step skipped when its output already exists
+The daily, weekly and monthly levels can also run unattended every morning
 ([automation](../../../00-system/workflows/automation.md)). A reconstructed
-day is not a day's record: the routine keeps the journal from being empty,
-it does not replace capturing during the day.
+day is not a day's record: it keeps the journal from being empty, it does
+not replace capturing during the day.
