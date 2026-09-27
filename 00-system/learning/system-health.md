@@ -25,7 +25,9 @@ in [system-health-check.md](../workflows/system-health-check.md).
 | Checks alive | The canary is reported, scheduled runs update their heartbeat | A check that reports green without proof it ran |
 | Open evaluations | Organization-log results get a verdict or a date | `linkcheck.py` reports due evaluations |
 
-Findings go to [observations.md](./observations.md); structural fixes
+Findings go to the current month's file in
+`00-system/learning/observations/` (see [observations.md](./observations.md));
+structural fixes
 follow [reorganization.md](../workflows/reorganization.md).
 
 The mechanical part runs with one command:

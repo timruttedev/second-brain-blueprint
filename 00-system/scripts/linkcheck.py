@@ -8,10 +8,12 @@ How and when to run it: 00-system/workflows/system-health-check.md
     linkcheck.py --orphans           # also report files nobody mentions
     linkcheck.py --only-orphans
 
-Exit 1 as soon as a link, an anchor, a `type:`, a `status:` or a
-frontmatter field does not resolve, a file exceeds its own `max_lines`, a
-code fence is never closed, or an evaluation in the organization log is
-due. Orphans are a hint, not an error. Exit 2 when the canary is silent:
+Exit 1 as soon as a link, an anchor, a `type:`, a `status:`, a
+`sensitivity:` or a frontmatter field does not resolve, a file exceeds its
+own `max_lines`, a code fence is never closed, a learning-log signpost
+carries a dated entry (entries belong in the month files), or an
+evaluation in the organization log is due. Orphans are a hint, not an
+error. Exit 2 when the canary is silent:
 then the check itself is broken, not the repository.
 
 Why a script: a renamed heading silently breaks anchor links, and manual
@@ -28,9 +30,15 @@ cleanup alone only produces the next round.
 
 The anchor rule follows GitHub: lowercase, drop Markdown markup and special
 characters, turn **every** whitespace character into a hyphen. Do not
-collapse them: '8.4a ⚠️ The' becomes '84a--the', with two hyphens, because
-the emoji vanishes between two spaces. Collapsing would report every emoji
-anchor as broken.
+collapse them: 'Step 1 ⚠️ Setup' becomes 'step-1--setup', with two hyphens,
+because the emoji vanishes between two spaces. Collapsing would report
+every emoji anchor as broken.
+
+`examples/` (the fictional sample Second Brain) is checked for links,
+anchors and frontmatter like everything else, but it is left out of the
+orphan check and of the due-evaluation check: its files are reached through
+the examples README, and its dates are fixed sample dates, not deadlines.
+Pass an example log file explicitly to check its evaluations anyway.
 """
 
 import argparse
@@ -43,10 +51,15 @@ ROOT = Path(__file__).resolve().parents[2]
 
 # Orphans are normal here and are not reported: directory READMEs (reached
 # through the folder), the journal (reached by date), the inbox (transit),
-# the agent instructions at the root and everything under .claude/ (the
-# runtime reads those, not a link).
-ORPHAN_EXEMPT_PREFIXES = ("02-journal/", "01-inbox/", ".claude/", "09-archive/")
-ORPHAN_EXEMPT_NAMES = {"README.md", "AGENTS.md", "CLAUDE.md", "MEMORY.md"}
+# the archive, the agent instructions at the root, everything under
+# .claude/ (the runtime reads those, not a link) and .github/.
+ORPHAN_EXEMPT_PREFIXES = ("02-journal/", "01-inbox/", ".claude/", "09-archive/",
+                          ".github/")
+ORPHAN_EXEMPT_NAMES = {"README.md", "AGENTS.md", "CLAUDE.md"}
+# The fictional sample Second Brain. Its links are checked, but it takes no
+# part in the orphan check (neither as orphan nor as the file that mentions
+# one) and its organization log is not evaluated unless passed explicitly.
+EXAMPLES = "examples/"
 
 _FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
 _COMMENT_OPEN = re.compile(r"<!--")
@@ -54,9 +67,9 @@ _COMMENT_CLOSE = re.compile(r"-->")
 _INLINE_CODE = re.compile(r"`[^`\n]*`")
 _LINK = re.compile(r"(?<!!)\[[^\]]*\]\(\s*([^)\s]+)")
 _MD_LINK_TEXT = re.compile(r"\[([^\]]*)\]\([^)]*\)")
-# The underscore stays: GitHub keeps it inside a word. '`SSH_FINGERPRINT` key'
-# becomes 'ssh_fingerprint-key'; dropping it as markup would break every
-# such anchor.
+# The underscore stays: GitHub keeps it inside a word. '`max_lines` field'
+# becomes 'max_lines-field'; dropping it as markup would break every such
+# anchor.
 _MARKUP = re.compile(r"[*`~]")
 _NOT_SLUG = re.compile(r"[^\w\s-]", re.UNICODE)
 _EXTERNAL = ("http://", "https://", "mailto:", "tel:", "ftp://")
@@ -70,7 +83,8 @@ TYPES = {
 }
 # The taxonomy itself shows the field as a schema placeholder.
 TYPE_EXEMPT = {"00-system/taxonomy.md"}
-_TYPE = re.compile(r"^type:\s*([^\s#]+)", re.MULTILINE)
+# `[ \t]*`, not `\s*`: an empty `type:` must not swallow the next line's key.
+_TYPE = re.compile(r"^type:[ \t]*([^\s#]+)", re.MULTILINE)
 _MAX_LINES = re.compile(r"^max_lines:\s*(\d+)\s*$", re.MULTILINE)
 
 # The union of the documented status vocabularies in 00-system/taxonomy.md.
@@ -88,10 +102,16 @@ FIELDS = {
     "type", "status", "created", "updated", "scope", "sensitivity",
     "max_lines", "archived", "source",
 }
-# Frontmatter under .claude/ belongs to the runtime, not the taxonomy:
-# skills carry name/description, rules carry paths.
-FIELD_EXEMPT_PREFIXES = (".claude/",)
-_STATUS = re.compile(r"^status:\s*([^\s#]+)", re.MULTILINE)
+# Frontmatter under .claude/ and .github/ belongs to the tools, not the
+# taxonomy: skills carry name/description, rules carry paths, issue
+# templates carry name/about/labels. Exempt from type, status and field
+# checks alike.
+FIELD_EXEMPT_PREFIXES = (".claude/", ".github/")
+_STATUS = re.compile(r"^status:[ \t]*([^\s#]+)", re.MULTILINE)
+# The four sensitivity levels from 00-system/taxonomy.md. `private` is the
+# default and normally not written, but it is not wrong either.
+SENSITIVITIES = {"public", "private", "confidential", "restricted"}
+_SENSITIVITY = re.compile(r"^sensitivity:[ \t]*([^\s#]+)", re.MULTILINE)
 _KEY = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*):", re.MULTILINE)
 
 # Organization log: an open evaluation names a review date.
@@ -100,13 +120,22 @@ ORGLOG = "00-system/learning/organization-log/"
 _ENTRY = re.compile(r"^##\s+(\d{4})-(\d{2})-(\d{2})\b")
 _RESULT = re.compile(r"^Result:\s*(.*)$")
 _FIELD_LINE = re.compile(r"^[A-Za-z][A-Za-z]*:\s")
-_DATE_DMY = re.compile(r"\b(\d{2})\.(\d{2})\.(\d{4})\b")
 _DATE_ISO = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 # Open stays open in any spelling: '_open', 'open,', '_open_', '_pending'.
 _OPEN = ("open", "pending")
 # Days an entry without a review date gets before it becomes a finding. One
 # month, because the monthly review is what closes it.
 GRACE_DAYS = 30
+
+# The two learning-log signposts hold the format and the month table only.
+# Entries go into the month files next to them (00-system/learning/README.md).
+SIGNPOSTS = (
+    "00-system/learning/organization-log.md",
+    "00-system/learning/observations.md",
+)
+# An organization-log entry starts with a dated heading, an observation with
+# a dated bullet. Inside a code fence (the documented format) neither counts.
+_DATED_ENTRY = re.compile(r"^(?:#{1,6}\s+|[-*]\s+)\d{4}-\d{2}-\d{2}\b")
 
 
 def is_fence(line):
@@ -239,6 +268,7 @@ def orphans(files):
     ('`00-system/templates/project.md`'), not linked. Counting only links
     would turn them all into orphans, and the report would be noise.
     """
+    files = [p for p in files if not relative(p).startswith(EXAMPLES)]
     linked = set()
     texts = {}
     for path in files:
@@ -283,9 +313,6 @@ def relative(path):
         return path.as_posix()
 
 
-# Kept as a separate name for display, same behavior.
-show = relative
-
 
 def header(path):
     """The frontmatter of a file, or None.
@@ -308,7 +335,8 @@ def types(files):
     """[(file, line, value)] for each `type:` not in the taxonomy."""
     findings = []
     for path in files:
-        if relative(path) in TYPE_EXEMPT:
+        rel = relative(path)
+        if rel in TYPE_EXEMPT or rel.startswith(FIELD_EXEMPT_PREFIXES):
             continue
         head = header(path)
         if head is None:
@@ -321,9 +349,10 @@ def types(files):
 
 
 def frontmatter(files):
-    """[(file, line, kind, value)] for each unknown status or field name.
+    """[(file, line, kind, value)] for each unknown status, sensitivity or field.
 
-    `kind` is "status" or "field"; the caller words the message. Both come
+    `kind` is "status", "sensitivity" or "field"; the caller words the
+    message. Both come
     from one loop because they share a cause: a convention that lives only
     in the taxonomy does not hold.
     """
@@ -339,6 +368,10 @@ def frontmatter(files):
         if match and match.group(1) not in STATUSES:
             no = 2 + head[:match.start()].count("\n")
             findings.append((path, no, "status", match.group(1)))
+        match = _SENSITIVITY.search(head)
+        if match and match.group(1) not in SENSITIVITIES:
+            no = 2 + head[:match.start()].count("\n")
+            findings.append((path, no, "sensitivity", match.group(1)))
         for match in _KEY.finditer(head):
             if match.group(1) not in FIELDS:
                 no = 2 + head[:match.start()].count("\n")
@@ -441,14 +474,30 @@ def collect(paths):
     )
 
 
+def signpost_entries(files):
+    """[(file, line)] for each dated entry written into a signpost.
+
+    `observations.md` and `organization-log.md` hold the format and the
+    month table. An entry written there instead of into the month file is
+    invisible to the due-evaluation check and makes the signpost grow
+    until nobody reads it. The documented format sits in a code fence and
+    does not count; neither does an HTML comment.
+    """
+    findings = []
+    for path in files:
+        rel = relative(path)
+        if not any(rel == s or rel == EXAMPLES + s for s in SIGNPOSTS):
+            continue
+        text = strip_code(path.read_text(encoding="utf-8"), inline=False)
+        for no, line in enumerate(text.split("\n"), start=1):
+            if _DATED_ENTRY.match(line):
+                findings.append((path, no))
+    return findings
+
+
 def _dates(text):
-    """All dates in the text, in ISO and DD.MM.YYYY notation."""
+    """All ISO dates (YYYY-MM-DD) in the text."""
     found = []
-    for day, month, year in _DATE_DMY.findall(text):
-        try:
-            found.append(date(int(year), int(month), int(day)))
-        except ValueError:
-            pass
     for year, month, day in _DATE_ISO.findall(text):
         try:
             found.append(date(int(year), int(month), int(day)))
@@ -457,7 +506,7 @@ def _dates(text):
     return found
 
 
-def due_evaluations(files, today=None):
+def due_evaluations(files, today=None, include_examples=False):
     """[(file, line, reason, title)] for each overdue open evaluation.
 
     An organization-log entry carries a `Result:`. If it says `open` or
@@ -477,11 +526,16 @@ def due_evaluations(files, today=None):
 
     Both are closed by the same move: write a verdict (keep / modify /
     revert) or set a concrete date.
+
+    `examples/00-system/learning/organization-log/` only counts with
+    `include_examples` (set when files are passed on the command line):
+    sample dates would otherwise turn due and fail every run.
     """
     today = today or date.today()
+    prefixes = (ORGLOG, EXAMPLES + ORGLOG) if include_examples else (ORGLOG,)
     findings = []
     for path in files:
-        if not relative(path).startswith(ORGLOG):
+        if not relative(path).startswith(prefixes):
             continue
         lines = path.read_text(encoding="utf-8").splitlines()
         title, posted = None, None
@@ -535,7 +589,7 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     p.add_argument("paths", nargs="*", help="files to check (default: all)")
-    p.add_argument("--orphans", "--waisen", action="store_true",
+    p.add_argument("--orphans", action="store_true",
                    help="also report files nobody mentions")
     p.add_argument("--only-orphans", action="store_true")
     args = p.parse_args()
@@ -549,31 +603,40 @@ def main():
             return 2
     for path, no, target, kind in findings:
         word = "target missing" if kind == "missing" else "anchor missing"
-        print(f"{show(path)}:{no}: {word}: {target}")
+        print(f"{relative(path)}:{no}: {word}: {target}")
 
     fence_findings = [] if args.only_orphans else open_fences(files)
     for path, no in fence_findings:
-        print(f"{show(path)}:{no}: code fence never closed, nothing after it "
+        print(f"{relative(path)}:{no}: code fence never closed, nothing after it "
               f"was checked")
 
     type_findings = [] if args.only_orphans else types(files)
     for path, no, value in type_findings:
-        print(f"{show(path)}:{no}: type not in the taxonomy: {value}")
+        print(f"{relative(path)}:{no}: type not in the taxonomy: {value}")
 
     head_findings = [] if args.only_orphans else frontmatter(files)
     for path, no, kind, value in head_findings:
-        what = ("status not in a documented vocabulary" if kind == "status"
-                else "frontmatter field not in the taxonomy")
-        print(f"{show(path)}:{no}: {what}: {value}")
+        what = {
+            "status": "status not in a documented vocabulary",
+            "sensitivity": "sensitivity not one of "
+                           + "/".join(sorted(SENSITIVITIES)),
+        }.get(kind, "frontmatter field not in the taxonomy")
+        print(f"{relative(path)}:{no}: {what}: {value}")
 
-    eval_findings = [] if args.only_orphans else due_evaluations(files)
+    post_findings = [] if args.only_orphans else signpost_entries(files)
+    for path, no in post_findings:
+        print(f"{relative(path)}:{no}: dated entry in a signpost: entries "
+              f"belong in the month files")
+
+    eval_findings = ([] if args.only_orphans else
+                     due_evaluations(files, include_examples=bool(args.paths)))
     for path, no, reason, title in eval_findings:
         short = title if len(title) <= 60 else title[:57] + "..."
-        print(f"{show(path)}:{no}: evaluation due ({reason}): {short}")
+        print(f"{relative(path)}:{no}: evaluation due ({reason}): {short}")
 
     budget_findings = [] if args.only_orphans else line_budgets(files)
     for path, budget, actual in budget_findings:
-        print(f"{show(path)}: {actual} lines, declared budget {budget} "
+        print(f"{relative(path)}: {actual} lines, declared budget {budget} "
               f"(max_lines in frontmatter)")
 
     if args.orphans or args.only_orphans:
@@ -583,11 +646,12 @@ def main():
         if args.paths:
             print("Note: --orphans only considers the files passed.")
         for path in lonely:
-            print(f"{show(path)}: not mentioned by any file")
+            print(f"{relative(path)}: not mentioned by any file")
         print(f"\n{len(lonely)} orphan(s) among {len(files)} files.")
 
     total = (len(findings) + len(fence_findings) + len(type_findings)
-             + len(head_findings) + len(budget_findings) + len(eval_findings))
+             + len(head_findings) + len(budget_findings) + len(eval_findings)
+             + len(post_findings))
     print(f"{len(files)} files checked, {total} finding(s).")
     return 1 if total else 0
 

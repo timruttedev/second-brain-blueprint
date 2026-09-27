@@ -11,5 +11,7 @@ Time-based notes and reviews. Templates in
 | `monthly/` | `YYYY-MM.md` | Larger patterns; system health pass |
 | `yearly/` | `YYYY.md` | Long-term development; system retrospective |
 
-Journal files are history: they are not updated retroactively. Corrections
-happen in the canonical files.
+Journal files are history: they are not rewritten. Corrections happen in
+the canonical files. The one allowed change is an addition: a fact about
+that day that surfaced later goes at the end, under "Added later". A day
+without anything to record gets no file.
