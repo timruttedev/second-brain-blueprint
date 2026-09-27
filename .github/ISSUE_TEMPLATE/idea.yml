@@ -1,0 +1,27 @@
+name: Idea
+description: Propose an improvement to a workflow, a rule, a check or the docs
+labels: [idea]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste content from your own Second Brain here.** Describe the
+        situation in general terms or with made-up examples.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem did you run into?
+      description: Real friction from daily use weighs more than an idea on paper. How often did it happen?
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What would you change?
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: How could a check verify it?
+      description: Optional. A rule that a script can check holds better than one that only lives in text.
