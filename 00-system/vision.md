@@ -57,6 +57,12 @@ The layer that asks instead of waiting to be asked:
   the same long-term context, then merge their views.
 - **A conversational interface** (a chat bot) that writes on its own when a
   pattern justifies it and writes learnings back into the repository.
+- **A goal and state layer** between long-term memory and the agents that
+  act. It keeps a compact current state, the outcomes that steer planning,
+  exactly one next step, a permission check, and a feedback log. One
+  correction is evidence. A repeated reason becomes a hypothesis. A standing
+  rule needs the owner's confirmation.
+  Details: [goal and state layer](./workflows/ziel-zustand.md).
 
 ## Design principles for this vision
 
@@ -87,6 +93,9 @@ Order follows "ingestion first". Adjust it to the owner's priorities.
    at a time, and check the signal quality of each.
 2. **Scheduled upkeep:** daily journal, reviews and nightly triage run on
    their own ([automation](./workflows/automation.md)).
-3. **Proactivity:** derive challenges and priorities from the repository.
-4. **Interaction:** a conversational interface that reads and writes the
+3. **Steering:** build the goal and state layer for one domain first
+   ([workflow](./workflows/ziel-zustand.md)). It turns context that is
+   already stored into one next step.
+4. **Proactivity:** derive challenges and priorities from the repository.
+5. **Interaction:** a conversational interface that reads and writes the
    repository.

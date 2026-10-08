@@ -13,7 +13,7 @@ itself. Not everyday knowledge.
 | [vision.md](./vision.md) | Where the system is meant to go. Target state, not current state. |
 | [indexes/](./indexes/README.md) | Compact pointers (projects, areas, people, goals, decisions, todos). Signposts, never copies of content. |
 | `templates/` | Starting points for new files. Adaptive, not mandatory. |
-| [workflows/](./workflows/README.md) | Model-agnostic process docs: capture, triage, retrieval, reviews, learning loop, reorganization, automation. |
+| [workflows/](./workflows/README.md) | Model-agnostic process docs: capture, triage, retrieval, reviews, learning loop, reorganization, automation, goal and state layer. |
 | [learning/](./learning/README.md) | The self-learning layer: observations, patterns, organization log, optimization backlog, system health. |
 | `scripts/` | Python for the few jobs a hand-typed one-liner gets wrong: the link checker ([linkcheck.py](./scripts/linkcheck.py)) with its [canary](./scripts/canary.md), and a report of unmerged branches ([branch_overview.py](./scripts/branch_overview.py)). Logic only: knowledge stays in Markdown. |
 

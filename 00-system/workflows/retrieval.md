@@ -20,6 +20,11 @@ directly linked files               (only the ones the question needs)
 journal / history / archive         (only for questions about the past)
 ```
 
+A question of the form "what should I do next" in a domain that has a
+pilot state (`steuerung/state.md`, see [ziel-zustand.md](./ziel-zustand.md))
+reads that state after `current-context.md` and before the long canonical
+files. The state is a compiled view. The linked file stays canonical.
+
 ## Tactics
 
 - **Search before reading**: `rg -il "term"` across likely directories;

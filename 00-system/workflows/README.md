@@ -11,6 +11,7 @@ fixed.
 | Capture | [capture.md](./capture.md) | `/brain-capture` |
 | Inbox triage | [triage.md](./triage.md) | `/brain-triage` |
 | Recall / retrieval | [retrieval.md](./retrieval.md) | `/brain-recall` |
+| Goal and state layer | [ziel-zustand.md](./ziel-zustand.md) | (no skill yet) |
 | Create project | [create-project.md](./create-project.md) | `/brain-project` |
 | Decision record | [decision-record.md](./decision-record.md) | `/brain-decision` |
 | Daily / weekly / monthly / yearly review | [reviews.md](./reviews.md) | `/brain-review` |

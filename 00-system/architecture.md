@@ -139,3 +139,6 @@ atomic captures into `01-inbox/` and triage takes it from there.
 - **Self-improvement:** OBSERVE → PATTERN → HYPOTHESIS → LOW-RISK CHANGE →
   USE → EVALUATE → KEEP / MODIFY / REVERT
   ([learning loop](./workflows/learning-loop.md))
+- **Steering:** signal, update state, check goals, one next step, check
+  permission, suggest or do, measure, learn
+  ([goal and state layer](./workflows/ziel-zustand.md))
