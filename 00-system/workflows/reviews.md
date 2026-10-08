@@ -39,6 +39,12 @@ Capture and events. Cheap, unpolished, optional. No synthesis required.
    genuinely no evidence yet. `linkcheck.py` reports overdue entries.
 6. One-minute system check: anything for the current month's file in
    [`observations/`](../learning/observations/)?
+7. **Pilot state.** If a domain has `steuerung/state.md` and this week
+   changed a file that state links to, refresh the state from those
+   canonical files and date the recommendation in `priorisierung.md`.
+   On conflict the canonical file wins. Leave confidential detail behind
+   the link. When the owner rejects or changes a recommendation, record
+   it in `feedback.md`. Procedure: [ziel-zustand.md](./ziel-zustand.md).
 
 ## Monthly
 
